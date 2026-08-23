@@ -2,20 +2,32 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
 
 <title>Kundenerfassung</title>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
+  padding: 0;
   font-family: Arial, sans-serif;
   background: #f2f4f7;
   color: #222;
+}
+
+body {
+  min-height: 100vh;
 }
 
 header {
@@ -46,7 +58,7 @@ header p {
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 15px;
-  box-shadow: 0 3px 12px rgba(0,0,0,.08);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
 }
 
 .step {
@@ -63,16 +75,17 @@ label {
   margin-bottom: 10px;
 }
 
-input {
+input[type="text"] {
   width: 100%;
   padding: 17px;
   border: 2px solid #cbd5e1;
   border-radius: 12px;
   font-size: 21px;
   background: white;
+  color: #222;
 }
 
-input:focus {
+input[type="text"]:focus {
   outline: none;
   border-color: #2563eb;
 }
@@ -84,35 +97,80 @@ input:focus {
   line-height: 1.4;
 }
 
-/* UNTERSCHRIFT */
-#signatureCanvas {
+
+/* ==========================================
+   UNTERSCHRIFT
+   ========================================== */
+
+.signature-wrapper {
   width: 100%;
-  height: 260px;
+  position: relative;
+}
+
+#signatureCanvas {
+
   display: block;
+
+  width: 100%;
+
+  height: 280px;
+
   background: white;
+
   border: 3px solid #9ca3af;
+
   border-radius: 12px;
 
   /*
-    Ganz wichtig:
-    Das Feld ist kein Eingabefeld.
-    Es darf niemals Fokus bekommen.
+    Sehr wichtig für Android / Zebra:
+    Der Browser darf die Berührung nicht
+    als Scrollen oder Zoom interpretieren.
   */
+
   touch-action: none;
+
+  /*
+    Keine Textauswahl.
+  */
+
   user-select: none;
   -webkit-user-select: none;
-  -webkit-touch-callout: none;
+
+  /*
+    Kein Fokus.
+  */
+
   outline: none;
+
+  /*
+    Verhindert lange Touch-Menüs.
+  */
+
+  -webkit-touch-callout: none;
 }
 
+
+/* ==========================================
+   BUTTONS
+   ========================================== */
+
 button {
+
   width: 100%;
+
   border: none;
+
   border-radius: 12px;
+
   padding: 17px;
+
   margin-top: 11px;
+
   font-size: 20px;
+
   font-weight: bold;
+
+  cursor: pointer;
 }
 
 .save {
@@ -130,19 +188,39 @@ button {
   color: white;
 }
 
+
+/* ==========================================
+   ERFOLG
+   ========================================== */
+
 .success {
+
   display: none;
+
   background: #dcfce7;
+
   color: #166534;
+
   padding: 15px;
+
   border-radius: 12px;
+
   font-weight: bold;
+
   font-size: 18px;
+
   margin-bottom: 15px;
 }
 
+
+/* ==========================================
+   GESPEICHERTE VORGÄNGE
+   ========================================== */
+
 .record {
+
   border-top: 1px solid #ddd;
+
   padding: 17px 0;
 }
 
@@ -151,39 +229,68 @@ button {
 }
 
 .record div {
+
   font-size: 17px;
+
   margin: 6px 0;
 }
 
 .signature-image {
+
   width: 300px;
+
   max-width: 100%;
+
   border: 1px solid #ddd;
+
   border-radius: 8px;
 }
 
 .empty {
+
   color: #777;
+
   font-size: 16px;
 }
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <header>
+
   <h1>📱 Kundenerfassung</h1>
-  <p>Name · Barcode · Unterschrift</p>
+
+  <p>
+    Name · Barcode · Unterschrift
+  </p>
+
 </header>
+
 
 <div class="container">
 
-  <div id="success" class="success">
+
+  <!-- ======================================
+       ERFOLG
+       ====================================== -->
+
+  <div
+    id="success"
+    class="success">
+
     ✓ Vorgang wurde gespeichert.
+
   </div>
 
 
-  <!-- NAME -->
+  <!-- ======================================
+       SCHRITT 1
+       ====================================== -->
 
   <div class="card">
 
@@ -204,7 +311,9 @@ button {
   </div>
 
 
-  <!-- BARCODE -->
+  <!-- ======================================
+       SCHRITT 2
+       ====================================== -->
 
   <div class="card">
 
@@ -223,14 +332,20 @@ button {
       autocomplete="off">
 
     <div class="help">
+
       Scan-Taste am Zebra T51 drücken.
-      Nach dem Scan wird die Tastatur geschlossen.
+
+      Nach dem Scan wird die Tastatur
+      automatisch geschlossen.
+
     </div>
 
   </div>
 
 
-  <!-- UNTERSCHRIFT -->
+  <!-- ======================================
+       SCHRITT 3
+       ====================================== -->
 
   <div class="card">
 
@@ -242,14 +357,18 @@ button {
       Unterschrift des Kunden
     </label>
 
-    <canvas
-      id="signatureCanvas"
-      tabindex="-1">
-    </canvas>
+    <div class="signature-wrapper">
+
+      <canvas
+        id="signatureCanvas">
+      </canvas>
+
+    </div>
+
 
     <button
-      class="clear"
       type="button"
+      class="clear"
       onclick="clearSignature()">
 
       Unterschrift löschen
@@ -259,13 +378,15 @@ button {
   </div>
 
 
-  <!-- SPEICHERN -->
+  <!-- ======================================
+       SPEICHERN
+       ====================================== -->
 
   <div class="card">
 
     <button
-      class="save"
       type="button"
+      class="save"
       onclick="saveRecord()">
 
       ✓ Vorgang speichern
@@ -275,25 +396,33 @@ button {
   </div>
 
 
-  <!-- GESPEICHERTE VORGÄNGE -->
+  <!-- ======================================
+       GESPEICHERTE VORGÄNGE
+       ====================================== -->
 
   <div class="card">
 
     <div class="step">
+
       📋 Gespeicherte Vorgänge
+
     </div>
+
 
     <div id="records">
 
       <div class="empty">
+
         Noch keine Vorgänge gespeichert.
+
       </div>
 
     </div>
 
+
     <button
-      class="delete"
       type="button"
+      class="delete"
       onclick="deleteAllRecords()">
 
       Alle Vorgänge löschen
@@ -302,34 +431,49 @@ button {
 
   </div>
 
+
 </div>
 
 
 <script>
 
-/* =========================================================
+
+/* ======================================================
    ELEMENTE
-   ========================================================= */
+   ====================================================== */
 
 const nameInput =
-  document.getElementById("customerName");
+  document.getElementById(
+    "customerName"
+  );
+
 
 const barcodeInput =
-  document.getElementById("barcode");
+  document.getElementById(
+    "barcode"
+  );
+
 
 const canvas =
-  document.getElementById("signatureCanvas");
+  document.getElementById(
+    "signatureCanvas"
+  );
+
 
 const ctx =
-  canvas.getContext("2d");
+  canvas.getContext(
+    "2d"
+  );
+
 
 let drawing = false;
+
 let hasSignature = false;
 
 
-/* =========================================================
+/* ======================================================
    TASTATUR SCHLIESSEN
-   ========================================================= */
+   ====================================================== */
 
 function closeKeyboard() {
 
@@ -340,15 +484,20 @@ function closeKeyboard() {
 }
 
 
-/* =========================================================
-   BARCODE-SCAN
-   ========================================================= */
+/* ======================================================
+   BARCODE SCANNER
+   ====================================================== */
 
 barcodeInput.addEventListener(
+
   "keydown",
+
   function(event) {
 
-    if (event.key === "Enter") {
+    if (
+      event.key === "Enter" ||
+      event.keyCode === 13
+    ) {
 
       event.preventDefault();
 
@@ -357,37 +506,60 @@ barcodeInput.addEventListener(
     }
 
   }
+
 );
 
 
-/* =========================================================
-   CANVAS DARF NIEMALS FOKUS BEKOMMEN
-   ========================================================= */
-
-canvas.addEventListener(
-  "focus",
-  function() {
-
-    canvas.blur();
-
-  }
-);
-
-
-/* =========================================================
-   CANVAS GRÖSSE
-   ========================================================= */
+/* ======================================================
+   CANVAS PIXELGENAU EINRICHTEN
+   ====================================================== */
 
 function setupCanvas() {
 
   const rect =
     canvas.getBoundingClientRect();
 
+
+  /*
+    devicePixelRatio sorgt dafür,
+    dass die tatsächliche interne
+    Canvas-Auflösung zur Display-
+    Auflösung passt.
+  */
+
+  const ratio =
+    window.devicePixelRatio || 1;
+
+
   canvas.width =
-    rect.width;
+    Math.round(
+      rect.width * ratio
+    );
+
 
   canvas.height =
-    rect.height;
+    Math.round(
+      rect.height * ratio
+    );
+
+
+  /*
+    Wir skalieren den Zeichenkontext
+    wieder auf CSS-Pixel.
+
+    Dadurch stimmen Touch-Koordinaten
+    und sichtbare Koordinaten exakt überein.
+  */
+
+  ctx.setTransform(
+    ratio,
+    0,
+    0,
+    ratio,
+    0,
+    0
+  );
+
 
   ctx.lineWidth = 3;
 
@@ -402,52 +574,59 @@ function setupCanvas() {
 
 }
 
+
 setupCanvas();
 
 
-/* =========================================================
-   POSITION ERMITTELN
-   ========================================================= */
+/* ======================================================
+   BEI ORIENTIERUNGSÄNDERUNG
+   ====================================================== */
 
-function getPosition(event) {
+window.addEventListener(
+  "resize",
+  function() {
+
+    /*
+      Normalerweise bleibt der T51
+      im gleichen Format.
+
+      Wir richten das Canvas trotzdem
+      neu ein.
+    */
+
+    setupCanvas();
+
+  }
+);
+
+
+/* ======================================================
+   TOUCH-POSITION PIXELGENAU BERECHNEN
+   ====================================================== */
+
+function getTouchPosition(
+  event
+) {
 
   const rect =
     canvas.getBoundingClientRect();
 
-  let clientX;
-  let clientY;
 
-
-  if (
+  const touch =
     event.touches &&
-    event.touches.length > 0
-  ) {
-
-    clientX =
-      event.touches[0].clientX;
-
-    clientY =
-      event.touches[0].clientY;
-
-  } else {
-
-    clientX =
-      event.clientX;
-
-    clientY =
-      event.clientY;
-
-  }
+    event.touches.length
+      ? event.touches[0]
+      : event;
 
 
   return {
 
     x:
-      clientX -
+      touch.clientX -
       rect.left,
 
     y:
-      clientY -
+      touch.clientY -
       rect.top
 
   };
@@ -455,28 +634,44 @@ function getPosition(event) {
 }
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT START
-   ========================================================= */
+   ====================================================== */
 
-function startDrawing(event) {
+function startSignature(
+  event
+) {
+
+  /*
+    Sehr wichtig:
+    Browser darf die Touch-Geste
+    nicht selbst verarbeiten.
+  */
 
   event.preventDefault();
 
+
   /*
-    Tastatur sicher schließen.
+    Tastatur schließen,
+    falls sie noch offen ist.
   */
 
   closeKeyboard();
+
 
   drawing = true;
 
   hasSignature = true;
 
+
   const position =
-    getPosition(event);
+    getTouchPosition(
+      event
+    );
+
 
   ctx.beginPath();
+
 
   ctx.moveTo(
     position.x,
@@ -486,11 +681,13 @@ function startDrawing(event) {
 }
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT ZEICHNEN
-   ========================================================= */
+   ====================================================== */
 
-function draw(event) {
+function drawSignature(
+  event
+) {
 
   if (!drawing) {
 
@@ -498,26 +695,34 @@ function draw(event) {
 
   }
 
+
   event.preventDefault();
 
+
   const position =
-    getPosition(event);
+    getTouchPosition(
+      event
+    );
+
 
   ctx.lineTo(
     position.x,
     position.y
   );
 
+
   ctx.stroke();
 
 }
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT ENDE
-   ========================================================= */
+   ====================================================== */
 
-function stopDrawing(event) {
+function endSignature(
+  event
+) {
 
   if (event) {
 
@@ -525,93 +730,154 @@ function stopDrawing(event) {
 
   }
 
+
   drawing = false;
+
 
   ctx.closePath();
 
 }
 
 
-/* =========================================================
-   TOUCH
-   ========================================================= */
+/* ======================================================
+   TOUCH EVENTS
+   ====================================================== */
 
 canvas.addEventListener(
+
   "touchstart",
-  startDrawing,
+
+  startSignature,
+
   {
     passive: false
   }
+
 );
 
+
 canvas.addEventListener(
+
   "touchmove",
-  draw,
+
+  drawSignature,
+
   {
     passive: false
   }
+
 );
 
+
 canvas.addEventListener(
+
   "touchend",
-  stopDrawing,
+
+  endSignature,
+
   {
     passive: false
   }
+
 );
 
 
-/* =========================================================
+canvas.addEventListener(
+
+  "touchcancel",
+
+  endSignature,
+
+  {
+    passive: false
+  }
+
+);
+
+
+/* ======================================================
    MAUS / FALLBACK
-   ========================================================= */
+   ====================================================== */
 
 canvas.addEventListener(
+
   "mousedown",
-  startDrawing
+
+  startSignature
+
 );
 
+
 canvas.addEventListener(
+
   "mousemove",
-  draw
+
+  drawSignature
+
 );
 
+
 canvas.addEventListener(
+
   "mouseup",
-  stopDrawing
+
+  endSignature
+
 );
+
 
 canvas.addEventListener(
+
   "mouseleave",
-  stopDrawing
+
+  endSignature
+
 );
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT LÖSCHEN
-   ========================================================= */
+   ====================================================== */
 
 function clearSignature() {
 
+  const rect =
+    canvas.getBoundingClientRect();
+
+
+  const ratio =
+    window.devicePixelRatio || 1;
+
+
   ctx.clearRect(
+
     0,
+
     0,
-    canvas.width,
-    canvas.height
+
+    rect.width,
+
+    rect.height
+
   );
 
-  hasSignature = false;
+
+  hasSignature =
+    false;
 
 }
 
 
-/* =========================================================
-   SPEICHERN
-   ========================================================= */
+/* ======================================================
+   VORGANG SPEICHERN
+   ====================================================== */
 
 function saveRecord() {
 
+
   const name =
     nameInput.value.trim();
+
 
   const barcode =
     barcodeInput.value.trim();
@@ -676,10 +942,15 @@ function saveRecord() {
 
 
   let records =
+
     JSON.parse(
+
       localStorage.getItem(
         "zebraRecords"
-      ) || "[]"
+      )
+
+      || "[]"
+
     );
 
 
@@ -689,60 +960,80 @@ function saveRecord() {
 
 
   localStorage.setItem(
+
     "zebraRecords",
-    JSON.stringify(records)
+
+    JSON.stringify(
+      records
+    )
+
   );
 
 
   loadRecords();
 
 
-  nameInput.value = "";
+  nameInput.value =
+    "";
 
-  barcodeInput.value = "";
+  barcodeInput.value =
+    "";
+
 
   clearSignature();
+
 
   closeKeyboard();
 
 
-  const message =
+  const success =
     document.getElementById(
       "success"
     );
 
-  message.style.display =
+
+  success.style.display =
     "block";
 
 
   setTimeout(
+
     function() {
 
-      message.style.display =
+      success.style.display =
         "none";
 
     },
+
     3000
+
   );
 
 }
 
 
-/* =========================================================
-   GESPEICHERTE VORGÄNGE
-   ========================================================= */
+/* ======================================================
+   GESPEICHERTE VORGÄNGE LADEN
+   ====================================================== */
 
 function loadRecords() {
 
+
   const records =
+
     JSON.parse(
+
       localStorage.getItem(
         "zebraRecords"
-      ) || "[]"
+      )
+
+      || "[]"
+
     );
 
 
   const container =
+
     document.getElementById(
       "records"
     );
@@ -753,8 +1044,11 @@ function loadRecords() {
   ) {
 
     container.innerHTML =
+
       '<div class="empty">' +
+
       'Noch keine Vorgänge gespeichert.' +
+
       '</div>';
 
     return;
@@ -767,12 +1061,16 @@ function loadRecords() {
 
 
   records.forEach(
+
     function(record) {
 
+
       const div =
+
         document.createElement(
           "div"
         );
+
 
       div.className =
         "record";
@@ -780,29 +1078,46 @@ function loadRecords() {
 
       div.innerHTML =
 
+
         "<div><strong>Name:</strong> " +
+
         escapeHtml(
           record.name
         ) +
+
         "</div>" +
 
+
         "<div><strong>Barcode:</strong> " +
+
         escapeHtml(
           record.barcode
         ) +
+
         "</div>" +
 
+
         "<div><strong>Datum:</strong> " +
+
         escapeHtml(
           record.date
         ) +
+
         "</div>" +
+
 
         "<div><strong>Unterschrift:</strong></div>" +
 
-        '<img class="signature-image" src="' +
+
+        '<img class="signature-image" ' +
+
+        'src="' +
+
         record.signature +
-        '" alt="Unterschrift">';
+
+        '" ' +
+
+        'alt="Unterschrift">';
 
 
       container.appendChild(
@@ -810,41 +1125,52 @@ function loadRecords() {
       );
 
     }
+
   );
 
 }
 
 
-/* =========================================================
-   SICHERER TEXT
-   ========================================================= */
+/* ======================================================
+   TEXT SICHER DARSTELLEN
+   ====================================================== */
 
-function escapeHtml(text) {
+function escapeHtml(
+  text
+) {
 
   const div =
     document.createElement(
       "div"
     );
 
+
   div.textContent =
     text;
+
 
   return div.innerHTML;
 
 }
 
 
-/* =========================================================
+/* ======================================================
    ALLE VORGÄNGE LÖSCHEN
-   ========================================================= */
+   ====================================================== */
 
 function deleteAllRecords() {
 
+
   const records =
+
     JSON.parse(
+
       localStorage.getItem(
         "zebraRecords"
-      ) || "[]"
+      )
+
+      || "[]"
+
     );
 
 
@@ -862,14 +1188,18 @@ function deleteAllRecords() {
 
 
   if (
+
     confirm(
       "Wirklich alle Vorgänge löschen?"
     )
+
   ) {
+
 
     localStorage.removeItem(
       "zebraRecords"
     );
+
 
     loadRecords();
 
@@ -878,13 +1208,15 @@ function deleteAllRecords() {
 }
 
 
-/* =========================================================
+/* ======================================================
    START
-   ========================================================= */
+   ====================================================== */
 
 loadRecords();
 
+
 </script>
+
 
 </body>
 </html>
