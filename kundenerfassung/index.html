@@ -16,8 +16,6 @@ body {
   font-family: Arial, sans-serif;
   background: #f2f4f7;
   color: #222;
-  -webkit-user-select: none;
-  user-select: none;
 }
 
 header {
@@ -72,8 +70,6 @@ input {
   border-radius: 12px;
   font-size: 21px;
   background: white;
-  -webkit-user-select: text;
-  user-select: text;
 }
 
 input:focus {
@@ -88,12 +84,7 @@ input:focus {
   line-height: 1.4;
 }
 
-.signature-title {
-  font-size: 21px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
+/* UNTERSCHRIFT */
 #signatureCanvas {
   width: 100%;
   height: 260px;
@@ -101,7 +92,17 @@ input:focus {
   background: white;
   border: 3px solid #9ca3af;
   border-radius: 12px;
+
+  /*
+    Ganz wichtig:
+    Das Feld ist kein Eingabefeld.
+    Es darf niemals Fokus bekommen.
+  */
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  outline: none;
 }
 
 button {
@@ -159,7 +160,6 @@ button {
   max-width: 100%;
   border: 1px solid #ddd;
   border-radius: 8px;
-  margin-top: 5px;
 }
 
 .empty {
@@ -238,17 +238,22 @@ button {
       SCHRITT 3
     </div>
 
-    <div class="signature-title">
+    <label>
       Unterschrift des Kunden
-    </div>
+    </label>
 
-    <canvas id="signatureCanvas"></canvas>
+    <canvas
+      id="signatureCanvas"
+      tabindex="-1">
+    </canvas>
 
     <button
       class="clear"
       type="button"
       onclick="clearSignature()">
+
       Unterschrift löschen
+
     </button>
 
   </div>
@@ -262,7 +267,9 @@ button {
       class="save"
       type="button"
       onclick="saveRecord()">
+
       ✓ Vorgang speichern
+
     </button>
 
   </div>
@@ -277,16 +284,20 @@ button {
     </div>
 
     <div id="records">
+
       <div class="empty">
         Noch keine Vorgänge gespeichert.
       </div>
+
     </div>
 
     <button
       class="delete"
       type="button"
       onclick="deleteAllRecords()">
+
       Alle Vorgänge löschen
+
     </button>
 
   </div>
@@ -312,7 +323,6 @@ const canvas =
 const ctx =
   canvas.getContext("2d");
 
-
 let drawing = false;
 let hasSignature = false;
 
@@ -323,49 +333,16 @@ let hasSignature = false;
 
 function closeKeyboard() {
 
-  /*
-    Fokus vom Eingabefeld entfernen.
-    Dadurch verschwindet die Android-Tastatur.
-  */
-
-  barcodeInput.blur();
   nameInput.blur();
 
-  /*
-    Zusätzlicher unsichtbarer Fokus.
-  */
-
-  const hidden =
-    document.createElement("input");
-
-  hidden.style.position = "fixed";
-  hidden.style.left = "-1000px";
-  hidden.style.top = "-1000px";
-  hidden.style.opacity = "0";
-
-  document.body.appendChild(hidden);
-
-  hidden.focus();
-
-  setTimeout(function() {
-
-    hidden.blur();
-
-    hidden.remove();
-
-  }, 100);
+  barcodeInput.blur();
 
 }
 
 
 /* =========================================================
-   BARCODE
+   BARCODE-SCAN
    ========================================================= */
-
-/*
-   Der Zebra Scanner arbeitet normalerweise wie eine
-   Tastatur und sendet nach dem Barcode ein ENTER.
-*/
 
 barcodeInput.addEventListener(
   "keydown",
@@ -377,37 +354,22 @@ barcodeInput.addEventListener(
 
       closeKeyboard();
 
-      /*
-        Unterschrift direkt vorbereiten.
-      */
-
-      setTimeout(function() {
-
-        canvas.focus();
-
-      }, 150);
-
     }
 
   }
 );
 
 
-/*
-   Falls der Scanner keinen ENTER sendet:
-   Barcode-Feld verliert den Fokus, sobald der Benutzer
-   auf die Unterschriftsfläche tippt.
-*/
+/* =========================================================
+   CANVAS DARF NIEMALS FOKUS BEKOMMEN
+   ========================================================= */
 
 canvas.addEventListener(
-  "touchstart",
+  "focus",
   function() {
 
-    closeKeyboard();
+    canvas.blur();
 
-  },
-  {
-    passive: true
   }
 );
 
@@ -416,35 +378,10 @@ canvas.addEventListener(
    CANVAS GRÖSSE
    ========================================================= */
 
-function resizeCanvas() {
+function setupCanvas() {
 
   const rect =
     canvas.getBoundingClientRect();
-
-  const oldCanvas =
-    document.createElement("canvas");
-
-  oldCanvas.width =
-    canvas.width;
-
-  oldCanvas.height =
-    canvas.height;
-
-  const oldCtx =
-    oldCanvas.getContext("2d");
-
-  if (
-    canvas.width > 0 &&
-    canvas.height > 0
-  ) {
-
-    oldCtx.drawImage(
-      canvas,
-      0,
-      0
-    );
-
-  }
 
   canvas.width =
     rect.width;
@@ -453,32 +390,23 @@ function resizeCanvas() {
     rect.height;
 
   ctx.lineWidth = 3;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.strokeStyle = "#000";
 
-  if (
-    oldCanvas.width > 0 &&
-    oldCanvas.height > 0
-  ) {
+  ctx.lineCap =
+    "round";
 
-    ctx.drawImage(
-      oldCanvas,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+  ctx.lineJoin =
+    "round";
 
-  }
+  ctx.strokeStyle =
+    "#000";
 
 }
 
-resizeCanvas();
+setupCanvas();
 
 
 /* =========================================================
-   POSITION AUF DEM UNTERSCHRIFTSFELD
+   POSITION ERMITTELN
    ========================================================= */
 
 function getPosition(event) {
@@ -535,20 +463,24 @@ function startDrawing(event) {
 
   event.preventDefault();
 
+  /*
+    Tastatur sicher schließen.
+  */
+
   closeKeyboard();
 
   drawing = true;
 
   hasSignature = true;
 
-  const pos =
+  const position =
     getPosition(event);
 
   ctx.beginPath();
 
   ctx.moveTo(
-    pos.x,
-    pos.y
+    position.x,
+    position.y
   );
 
 }
@@ -561,17 +493,19 @@ function startDrawing(event) {
 function draw(event) {
 
   if (!drawing) {
+
     return;
+
   }
 
   event.preventDefault();
 
-  const pos =
+  const position =
     getPosition(event);
 
   ctx.lineTo(
-    pos.x,
-    pos.y
+    position.x,
+    position.y
   );
 
   ctx.stroke();
@@ -586,7 +520,9 @@ function draw(event) {
 function stopDrawing(event) {
 
   if (event) {
+
     event.preventDefault();
+
   }
 
   drawing = false;
@@ -596,7 +532,9 @@ function stopDrawing(event) {
 }
 
 
-/* TOUCH */
+/* =========================================================
+   TOUCH
+   ========================================================= */
 
 canvas.addEventListener(
   "touchstart",
@@ -623,7 +561,9 @@ canvas.addEventListener(
 );
 
 
-/* MAUS - FALLBACK */
+/* =========================================================
+   MAUS / FALLBACK
+   ========================================================= */
 
 canvas.addEventListener(
   "mousedown",
@@ -709,8 +649,6 @@ function saveRecord() {
       "Bitte den Kunden unterschreiben lassen."
     );
 
-    closeKeyboard();
-
     return;
 
   }
@@ -745,7 +683,9 @@ function saveRecord() {
     );
 
 
-  records.unshift(record);
+  records.unshift(
+    record
+  );
 
 
   localStorage.setItem(
@@ -758,6 +698,7 @@ function saveRecord() {
 
 
   nameInput.value = "";
+
   barcodeInput.value = "";
 
   clearSignature();
@@ -765,21 +706,24 @@ function saveRecord() {
   closeKeyboard();
 
 
-  const success =
+  const message =
     document.getElementById(
       "success"
     );
 
-  success.style.display =
+  message.style.display =
     "block";
 
 
-  setTimeout(function() {
+  setTimeout(
+    function() {
 
-    success.style.display =
-      "none";
+      message.style.display =
+        "none";
 
-  }, 3000);
+    },
+    3000
+  );
 
 }
 
@@ -818,7 +762,8 @@ function loadRecords() {
   }
 
 
-  container.innerHTML = "";
+  container.innerHTML =
+    "";
 
 
   records.forEach(
@@ -871,7 +816,7 @@ function loadRecords() {
 
 
 /* =========================================================
-   HTML SICHER DARSTELLEN
+   SICHERER TEXT
    ========================================================= */
 
 function escapeHtml(text) {
