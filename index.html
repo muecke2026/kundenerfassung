@@ -2,147 +2,154 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Zebra T51 Schulung</title>
 
 <style>
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f2f4f7;
-    color: #222;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f4f7;
+  color: #222;
 }
 
 header {
-    background: #111827;
-    color: white;
-    padding: 20px;
-    text-align: center;
+  background: #111827;
+  color: white;
+  padding: 18px 16px;
+  text-align: center;
 }
 
 header h1 {
-    margin: 0;
-    font-size: 24px;
+  margin: 0;
+  font-size: 24px;
 }
 
 header p {
-    margin: 6px 0 0;
-    opacity: 0.8;
+  margin: 5px 0 0;
+  font-size: 15px;
 }
 
 .container {
-    max-width: 700px;
-    margin: auto;
-    padding: 20px;
+  max-width: 700px;
+  margin: auto;
+  padding: 14px;
 }
 
 .card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 18px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+.step {
+  font-size: 14px;
+  font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 8px;
+  text-transform: uppercase;
 }
 
 label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
+  display: block;
+  font-weight: bold;
+  font-size: 19px;
+  margin-bottom: 8px;
 }
 
 input {
-    width: 100%;
-    padding: 16px;
-    font-size: 20px;
-    border: 2px solid #d1d5db;
-    border-radius: 10px;
-    margin-bottom: 15px;
+  width: 100%;
+  padding: 16px;
+  font-size: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
 }
 
 input:focus {
-    outline: none;
-    border-color: #2563eb;
-}
-
-button {
-    width: 100%;
-    padding: 16px;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    margin-top: 10px;
-    cursor: pointer;
-}
-
-.primary {
-    background: #2563eb;
-    color: white;
-}
-
-.success {
-    background: #16a34a;
-    color: white;
-}
-
-.danger {
-    background: #dc2626;
-    color: white;
-}
-
-.secondary {
-    background: #e5e7eb;
-    color: #111827;
-}
-
-#signatureCanvas {
-    width: 100%;
-    height: 220px;
-    border: 2px solid #9ca3af;
-    border-radius: 10px;
-    background: white;
-    touch-action: none;
-}
-
-.status {
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 12px;
-    display: none;
-    font-weight: bold;
-}
-
-.status.ok {
-    display: block;
-    background: #dcfce7;
-    color: #166534;
-}
-
-.record {
-    border-top: 1px solid #ddd;
-    padding: 15px 0;
-}
-
-.record:first-child {
-    border-top: none;
-}
-
-.record strong {
-    display: inline-block;
-    min-width: 130px;
+  outline: none;
+  border-color: #2563eb;
 }
 
 .small {
-    color: #666;
-    font-size: 14px;
+  color: #666;
+  font-size: 14px;
 }
 
-.hidden {
-    display: none;
+#signatureCanvas {
+  display: block;
+  width: 100%;
+  height: 220px;
+  border: 2px solid #9ca3af;
+  border-radius: 10px;
+  background: white;
+  touch-action: none;
+}
+
+button {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  border: 0;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.success {
+  background: #16a34a;
+  color: white;
+}
+
+.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.status {
+  padding: 13px;
+  border-radius: 9px;
+  margin-top: 12px;
+  font-weight: bold;
+  display: none;
+}
+
+.status.ok {
+  display: block;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.record {
+  border-top: 1px solid #ddd;
+  padding: 15px 0;
+}
+
+.record:first-child {
+  border-top: 0;
+}
+
+.record strong {
+  display: inline-block;
+  min-width: 95px;
+}
+
+.record img {
+  max-width: 100%;
+  height: 90px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 5px;
 }
 </style>
 </head>
@@ -150,408 +157,297 @@ button {
 <body>
 
 <header>
-    <h1>📱 Zebra T51 Schulung</h1>
-    <p>Scannen · Erfassen · Unterschreiben · Speichern</p>
+  <h1>📱 Zebra T51 Schulung</h1>
+  <p>Name · Barcode · Unterschrift</p>
 </header>
 
 <div class="container">
 
-    <div class="card">
+  <div class="card">
+    <div class="step">Schritt 1</div>
+    <label for="name">Name des Kunden</label>
+    <input
+      id="name"
+      type="text"
+      placeholder="Name eingeben"
+      autocomplete="name">
+  </div>
 
-        <label for="scan">Barcode / QR-Code</label>
+  <div class="card">
+    <div class="step">Schritt 2</div>
+    <label for="scan">Barcode / QR-Code</label>
 
-        <input
-            id="scan"
-            type="text"
-            placeholder="Barcode scannen..."
-            autocomplete="off"
-            autofocus
-        >
+    <input
+      id="scan"
+      type="text"
+      placeholder="Barcode scannen..."
+      autocomplete="off"
+      inputmode="none">
 
-        <p class="small">
-            Scanner am Zebra T51 betätigen. Der Scan wird automatisch übernommen.
-        </p>
+    <p class="small">
+      Scan-Taste am Zebra T51 drücken.
+      Der Barcode wird automatisch übernommen.
+    </p>
+  </div>
 
-        <label for="name">Name Teilnehmer</label>
+  <div class="card">
+    <div class="step">Schritt 3</div>
+    <label>Unterschrift des Kunden</label>
 
-        <input
-            id="name"
-            type="text"
-            placeholder="Name eingeben"
-        >
+    <canvas id="signatureCanvas"></canvas>
 
-        <label for="training">Schulung / Thema</label>
+    <button class="secondary" onclick="clearSignature()">
+      Unterschrift löschen
+    </button>
+  </div>
 
-        <input
-            id="training"
-            type="text"
-            placeholder="z. B. Geräteschulung"
-        >
+  <div class="card">
 
-    </div>
+    <button class="success" onclick="saveRecord()">
+      💾 Vorgang speichern
+    </button>
 
+    <button class="secondary" onclick="newRecord()">
+      ➕ Neuer Vorgang
+    </button>
 
-    <div class="card">
+    <div id="status" class="status"></div>
 
-        <label>Unterschrift</label>
+  </div>
 
-        <canvas id="signatureCanvas"></canvas>
+  <div class="card">
 
-        <button
-            class="secondary"
-            onclick="clearSignature()">
-            Unterschrift löschen
-        </button>
+    <h2>📋 Gespeicherte Vorgänge</h2>
 
-    </div>
+    <div id="records"></div>
 
+    <button class="danger" onclick="deleteAllRecords()">
+      Alle Vorgänge löschen
+    </button>
 
-    <div class="card">
-
-        <button
-            class="success"
-            onclick="saveRecord()">
-            💾 Vorgang speichern
-        </button>
-
-        <button
-            class="secondary"
-            onclick="newRecord()">
-            ➕ Neuer Vorgang
-        </button>
-
-        <div id="status" class="status"></div>
-
-    </div>
-
-
-    <div class="card">
-
-        <h2>📋 Gespeicherte Vorgänge</h2>
-
-        <div id="records"></div>
-
-        <button
-            class="danger"
-            onclick="deleteAllRecords()">
-            Alle Vorgänge löschen
-        </button>
-
-    </div>
+  </div>
 
 </div>
-
 
 <script>
 
 const scanInput = document.getElementById("scan");
 const nameInput = document.getElementById("name");
-const trainingInput = document.getElementById("training");
-
 const canvas = document.getElementById("signatureCanvas");
 const ctx = canvas.getContext("2d");
 
 let drawing = false;
 let hasSignature = false;
 
-
-/* -----------------------------
-   CANVAS
------------------------------ */
-
 function resizeCanvas() {
 
-    const ratio = window.devicePixelRatio || 1;
+  const ratio = window.devicePixelRatio || 1;
 
-    canvas.width = canvas.clientWidth * ratio;
-    canvas.height = canvas.clientHeight * ratio;
+  canvas.width = canvas.clientWidth * ratio;
+  canvas.height = canvas.clientHeight * ratio;
 
-    ctx.scale(ratio, ratio);
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
 }
 
 resizeCanvas();
 
 window.addEventListener("resize", resizeCanvas);
 
+function getPosition(e) {
 
-function getPosition(event) {
+  const r = canvas.getBoundingClientRect();
 
-    const rect = canvas.getBoundingClientRect();
-
-    return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top
-    };
+  return {
+    x: e.clientX - r.left,
+    y: e.clientY - r.top
+  };
 }
 
+canvas.addEventListener("pointerdown", function(e) {
 
-canvas.addEventListener("pointerdown", function(event) {
+  drawing = true;
+  hasSignature = true;
 
-    drawing = true;
-    hasSignature = true;
+  const p = getPosition(e);
 
-    const pos = getPosition(event);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
 
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
+  canvas.setPointerCapture(e.pointerId);
 });
 
+canvas.addEventListener("pointermove", function(e) {
 
-canvas.addEventListener("pointermove", function(event) {
+  if (!drawing) return;
 
-    if (!drawing) return;
+  const p = getPosition(e);
 
-    const pos = getPosition(event);
-
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
 });
-
 
 canvas.addEventListener("pointerup", function() {
-
-    drawing = false;
+  drawing = false;
 });
 
-
-canvas.addEventListener("pointerleave", function() {
-
-    drawing = false;
+canvas.addEventListener("pointercancel", function() {
+  drawing = false;
 });
-
 
 function clearSignature() {
 
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+  ctx.clearRect(
+    0,
+    0,
+    canvas.clientWidth,
+    canvas.clientHeight
+  );
 
-    hasSignature = false;
+  hasSignature = false;
 }
 
+function showStatus(message, ok) {
 
-/* -----------------------------
-   SPEICHERN
------------------------------ */
+  const status = document.getElementById("status");
+
+  status.textContent = message;
+
+  status.className = "status";
+
+  if (ok) {
+    status.classList.add("ok");
+  }
+}
 
 function saveRecord() {
 
-    const barcode = scanInput.value.trim();
-    const name = nameInput.value.trim();
-    const training = trainingInput.value.trim();
+  const name = nameInput.value.trim();
+  const barcode = scanInput.value.trim();
 
-    if (!barcode) {
-        showStatus("Bitte zuerst einen Barcode scannen.", false);
-        scanInput.focus();
-        return;
-    }
-
-    if (!name) {
-        showStatus("Bitte den Namen eingeben.", false);
-        nameInput.focus();
-        return;
-    }
-
-    if (!hasSignature) {
-        showStatus("Bitte unterschreiben.", false);
-        return;
-    }
-
-    const record = {
-
-        id: Date.now(),
-
-        barcode: barcode,
-
-        name: name,
-
-        training: training,
-
-        date: new Date().toLocaleString("de-DE"),
-
-        signature: canvas.toDataURL("image/png")
-    };
-
-
-    const records =
-        JSON.parse(
-            localStorage.getItem("zebraRecords") || "[]"
-        );
-
-
-    records.unshift(record);
-
-
-    localStorage.setItem(
-        "zebraRecords",
-        JSON.stringify(records)
-    );
-
+  if (!name) {
 
     showStatus(
-        "✓ Vorgang wurde gespeichert.",
-        true
+      "Bitte zuerst den Namen eingeben.",
+      false
     );
 
+    nameInput.focus();
+    return;
+  }
 
-    loadRecords();
+  if (!barcode) {
+
+    showStatus(
+      "Bitte zuerst den Barcode scannen.",
+      false
+    );
+
+    scanInput.focus();
+    return;
+  }
+
+  if (!hasSignature) {
+
+    showStatus(
+      "Bitte den Kunden unterschreiben lassen.",
+      false
+    );
+
+    return;
+  }
+
+  const record = {
+
+    id: Date.now(),
+
+    name: name,
+
+    barcode: barcode,
+
+    date: new Date().toLocaleString("de-DE"),
+
+    signature: canvas.toDataURL("image/png")
+  };
+
+  const records =
+    JSON.parse(
+      localStorage.getItem("zebraRecords") || "[]"
+    );
+
+  records.unshift(record);
+
+  localStorage.setItem(
+    "zebraRecords",
+    JSON.stringify(records)
+  );
+
+  showStatus(
+    "✓ Vorgang wurde gespeichert.",
+    true
+  );
+
+  loadRecords();
 }
-
-
-/* -----------------------------
-   NEUER VORGANG
------------------------------ */
 
 function newRecord() {
 
-    scanInput.value = "";
-    nameInput.value = "";
-    trainingInput.value = "";
+  nameInput.value = "";
+  scanInput.value = "";
 
-    clearSignature();
+  clearSignature();
 
-    scanInput.focus();
+  showStatus("", false);
 
-    showStatus("", false);
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+  nameInput.focus();
 }
-
-
-/* -----------------------------
-   ANZEIGE
------------------------------ */
 
 function loadRecords() {
 
-    const records =
-        JSON.parse(
-            localStorage.getItem("zebraRecords") || "[]"
-        );
-
-    const container =
-        document.getElementById("records");
-
-    container.innerHTML = "";
-
-
-    if (records.length === 0) {
-
-        container.innerHTML =
-            '<p class="small">Noch keine Vorgänge gespeichert.</p>';
-
-        return;
-    }
-
-
-    records.forEach(function(record) {
-
-        const div =
-            document.createElement("div");
-
-        div.className = "record";
-
-
-        div.innerHTML = `
-
-            <div>
-                <strong>Barcode:</strong>
-                ${escapeHtml(record.barcode)}
-            </div>
-
-            <div>
-                <strong>Name:</strong>
-                ${escapeHtml(record.name)}
-            </div>
-
-            <div>
-                <strong>Schulung:</strong>
-                ${escapeHtml(record.training || "-")}
-            </div>
-
-            <div>
-                <strong>Datum:</strong>
-                ${escapeHtml(record.date)}
-            </div>
-
-            <div style="margin-top:10px;">
-                <strong>Unterschrift:</strong><br>
-                <img
-                    src="${record.signature}"
-                    style="max-width:100%;height:100px;border:1px solid #ddd;border-radius:5px;margin-top:5px;"
-                >
-            </div>
-
-        `;
-
-        container.appendChild(div);
-    });
-}
-
-
-/* -----------------------------
-   ALLE LÖSCHEN
------------------------------ */
-
-function deleteAllRecords() {
-
-    if (!confirm("Wirklich alle gespeicherten Vorgänge löschen?")) {
-        return;
-    }
-
-    localStorage.removeItem("zebraRecords");
-
-    loadRecords();
-
-    showStatus(
-        "Alle Vorgänge wurden gelöscht.",
-        true
+  const records =
+    JSON.parse(
+      localStorage.getItem("zebraRecords") || "[]"
     );
-}
 
+  const container =
+    document.getElementById("records");
 
-/* -----------------------------
-   STATUS
------------------------------ */
+  container.innerHTML = "";
 
-function showStatus(message, success) {
+  if (!records.length) {
 
-    const status =
-        document.getElementById("status");
+    container.innerHTML =
+      "<p class='small'>Noch keine Vorgänge gespeichert.</p>";
 
-    status.textContent = message;
+    return;
+  }
 
-    status.className =
-        "status " + (success ? "ok" : "");
-}
-
-
-/* -----------------------------
-   SICHERHEIT
------------------------------ */
-
-function escapeHtml(text) {
+  records.forEach(function(record) {
 
     const div = document.createElement("div");
 
-    div.textContent = text;
+    div.className = "record";
 
-    return div.innerHTML;
-}
+    div.innerHTML =
 
+      "<div><strong>Name:</strong> " +
+      escapeHtml(record.name) +
+      "</div>" +
 
-/* -----------------------------
-   START
------------------------------ */
+      "<div><strong>Barcode:</strong> " +
+      escapeHtml(record.barcode) +
+      "</div>" +
 
-loadRecords();
+      "<div><strong>Datum:</strong> " +
+      escapeHtml(record.date) +
+      "</div>" +
 
-</script>
-
-</body>
-</html>
+      "<div style='margin-top:8
