@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
 <title>Kundenerfassung</title>
 
@@ -11,8 +11,9 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
   margin: 0;
+  padding: 0;
   font-family: Arial, sans-serif;
   background: #f2f4f7;
   color: #222;
@@ -53,17 +54,34 @@ header p {
   color: #2563eb;
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-label {
+label.title {
   display: block;
   font-size: 21px;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-input {
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid #d1d5db;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 10px 0;
+  font-size: 20px;
+}
+
+.choice input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+}
+
+input[type="text"] {
   width: 100%;
   padding: 17px;
   border: 2px solid #cbd5e1;
@@ -72,9 +90,13 @@ input {
   background: white;
 }
 
-input:focus {
+input[type="text"]:focus {
   outline: none;
   border-color: #2563eb;
+}
+
+.hidden {
+  display: none;
 }
 
 .help {
@@ -84,26 +106,26 @@ input:focus {
   line-height: 1.4;
 }
 
-/* UNTERSCHRIFT */
+/* Unterschrift */
+
 #signatureCanvas {
-  width: 100%;
-  height: 260px;
   display: block;
+  width: 100%;
+  height: 280px;
   background: white;
   border: 3px solid #9ca3af;
   border-radius: 12px;
 
-  /*
-    Ganz wichtig:
-    Das Feld ist kein Eingabefeld.
-    Es darf niemals Fokus bekommen.
-  */
   touch-action: none;
+
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+
   outline: none;
 }
+
+/* Buttons */
 
 button {
   width: 100%;
@@ -120,6 +142,11 @@ button {
   color: white;
 }
 
+.pdf {
+  background: #2563eb;
+  color: white;
+}
+
 .clear {
   background: #6b7280;
   color: white;
@@ -129,6 +156,8 @@ button {
   background: #dc2626;
   color: white;
 }
+
+/* Erfolg */
 
 .success {
   display: none;
@@ -140,6 +169,8 @@ button {
   font-size: 18px;
   margin-bottom: 15px;
 }
+
+/* gespeicherte Vorgänge */
 
 .record {
   border-top: 1px solid #ddd;
@@ -172,18 +203,33 @@ button {
 <body>
 
 <header>
+
   <h1>📱 Kundenerfassung</h1>
-  <p>Name · Barcode · Unterschrift</p>
+
+  <p>
+    Empfang · Barcode · Unterschrift
+  </p>
+
 </header>
+
 
 <div class="container">
 
-  <div id="success" class="success">
+
+  <!-- Erfolg -->
+
+  <div
+    id="success"
+    class="success">
+
     ✓ Vorgang wurde gespeichert.
+
   </div>
 
 
-  <!-- NAME -->
+  <!-- ======================================
+       SCHRITT 1
+       ====================================== -->
 
   <div class="card">
 
@@ -191,20 +237,68 @@ button {
       SCHRITT 1
     </div>
 
-    <label for="customerName">
-      Name des Kunden
+    <label class="title">
+      Wer hat die Sendung erhalten?
     </label>
 
-    <input
-      id="customerName"
-      type="text"
-      placeholder="Name eingeben"
-      autocomplete="off">
+
+    <label class="choice">
+
+      <input
+        type="radio"
+        name="receiverType"
+        value="Empfänger"
+        checked>
+
+      <span>
+        Der Empfänger
+      </span>
+
+    </label>
+
+
+    <label class="choice">
+
+      <input
+        type="radio"
+        name="receiverType"
+        value="Andere anwesende Person">
+
+      <span>
+        Eine andere anwesende Person
+      </span>
+
+    </label>
+
+
+    <!-- Nur bei anderer Person -->
+
+    <div
+      id="otherPersonBox"
+      class="hidden">
+
+      <label
+        class="title"
+        for="otherPersonName">
+
+        Name der anwesenden Person
+
+      </label>
+
+      <input
+        id="otherPersonName"
+        type="text"
+        placeholder="Name eingeben"
+        autocomplete="off">
+
+    </div>
 
   </div>
 
 
-  <!-- BARCODE -->
+  <!-- ======================================
+       SCHRITT 2
+       ====================================== -->
 
   <div class="card">
 
@@ -212,8 +306,12 @@ button {
       SCHRITT 2
     </div>
 
-    <label for="barcode">
+    <label
+      class="title"
+      for="barcode">
+
       Barcode
+
     </label>
 
     <input
@@ -223,14 +321,20 @@ button {
       autocomplete="off">
 
     <div class="help">
+
       Scan-Taste am Zebra T51 drücken.
-      Nach dem Scan wird die Tastatur geschlossen.
+
+      Nach dem Scan wird die Tastatur
+      automatisch geschlossen.
+
     </div>
 
   </div>
 
 
-  <!-- UNTERSCHRIFT -->
+  <!-- ======================================
+       SCHRITT 3
+       ====================================== -->
 
   <div class="card">
 
@@ -238,14 +342,17 @@ button {
       SCHRITT 3
     </div>
 
-    <label>
-      Unterschrift des Kunden
+    <label class="title">
+
+      Unterschrift
+
     </label>
 
+
     <canvas
-      id="signatureCanvas"
-      tabindex="-1">
+      id="signatureCanvas">
     </canvas>
+
 
     <button
       class="clear"
@@ -259,7 +366,9 @@ button {
   </div>
 
 
-  <!-- SPEICHERN -->
+  <!-- ======================================
+       SPEICHERN / PDF
+       ====================================== -->
 
   <div class="card">
 
@@ -272,24 +381,42 @@ button {
 
     </button>
 
+
+    <button
+      class="pdf"
+      type="button"
+      onclick="createPDF()">
+
+      📄 PDF erstellen
+
+    </button>
+
   </div>
 
 
-  <!-- GESPEICHERTE VORGÄNGE -->
+  <!-- ======================================
+       GESPEICHERTE VORGÄNGE
+       ====================================== -->
 
   <div class="card">
 
     <div class="step">
+
       📋 Gespeicherte Vorgänge
+
     </div>
+
 
     <div id="records">
 
       <div class="empty">
+
         Noch keine Vorgänge gespeichert.
+
       </div>
 
     </div>
+
 
     <button
       class="delete"
@@ -302,53 +429,136 @@ button {
 
   </div>
 
+
 </div>
 
 
 <script>
 
-/* =========================================================
+
+/* ======================================================
    ELEMENTE
-   ========================================================= */
+   ====================================================== */
 
-const nameInput =
-  document.getElementById("customerName");
+const otherPersonBox =
+  document.getElementById(
+    "otherPersonBox"
+  );
 
-const barcodeInput =
-  document.getElementById("barcode");
+
+const otherPersonName =
+  document.getElementById(
+    "otherPersonName"
+  );
+
+
+const barcode =
+  document.getElementById(
+    "barcode"
+  );
+
 
 const canvas =
-  document.getElementById("signatureCanvas");
+  document.getElementById(
+    "signatureCanvas"
+  );
+
 
 const ctx =
-  canvas.getContext("2d");
+  canvas.getContext(
+    "2d"
+  );
+
 
 let drawing = false;
+
 let hasSignature = false;
 
 
-/* =========================================================
+/* ======================================================
+   EMPFÄNGER AUSWAHL
+   ====================================================== */
+
+document
+  .querySelectorAll(
+    'input[name="receiverType"]'
+  )
+  .forEach(
+
+    function(radio) {
+
+      radio.addEventListener(
+        "change",
+        function() {
+
+          if (
+            this.value ===
+            "Andere anwesende Person"
+            &&
+            this.checked
+          ) {
+
+            otherPersonBox
+              .classList
+              .remove("hidden");
+
+          } else {
+
+            otherPersonBox
+              .classList
+              .add("hidden");
+
+            otherPersonName.value =
+              "";
+
+          }
+
+        }
+      );
+
+    }
+
+  );
+
+
+/* ======================================================
    TASTATUR SCHLIESSEN
-   ========================================================= */
+   ====================================================== */
 
 function closeKeyboard() {
 
-  nameInput.blur();
+  if (
+    document.activeElement
+  ) {
 
-  barcodeInput.blur();
+    document
+      .activeElement
+      .blur();
+
+  }
+
+  otherPersonName.blur();
+
+  barcode.blur();
 
 }
 
 
-/* =========================================================
-   BARCODE-SCAN
-   ========================================================= */
+/* ======================================================
+   BARCODE
+   ====================================================== */
 
-barcodeInput.addEventListener(
+barcode.addEventListener(
+
   "keydown",
+
   function(event) {
 
-    if (event.key === "Enter") {
+    if (
+      event.key === "Enter"
+      ||
+      event.keyCode === 13
+    ) {
 
       event.preventDefault();
 
@@ -357,39 +567,50 @@ barcodeInput.addEventListener(
     }
 
   }
+
 );
 
 
-/* =========================================================
-   CANVAS DARF NIEMALS FOKUS BEKOMMEN
-   ========================================================= */
-
-canvas.addEventListener(
-  "focus",
-  function() {
-
-    canvas.blur();
-
-  }
-);
-
-
-/* =========================================================
-   CANVAS GRÖSSE
-   ========================================================= */
+/* ======================================================
+   CANVAS PIXELGENAU
+   ====================================================== */
 
 function setupCanvas() {
 
   const rect =
     canvas.getBoundingClientRect();
 
+
+  const ratio =
+    window.devicePixelRatio || 1;
+
+
   canvas.width =
-    rect.width;
+    Math.round(
+      rect.width * ratio
+    );
+
 
   canvas.height =
-    rect.height;
+    Math.round(
+      rect.height * ratio
+    );
 
-  ctx.lineWidth = 3;
+
+  ctx.setTransform(
+
+    ratio,
+    0,
+    0,
+    ratio,
+    0,
+    0
+
+  );
+
+
+  ctx.lineWidth =
+    3;
 
   ctx.lineCap =
     "round";
@@ -402,52 +623,35 @@ function setupCanvas() {
 
 }
 
+
 setupCanvas();
 
 
-/* =========================================================
-   POSITION ERMITTELN
-   ========================================================= */
+/* ======================================================
+   TOUCH POSITION
+   ====================================================== */
 
 function getPosition(event) {
 
   const rect =
     canvas.getBoundingClientRect();
 
-  let clientX;
-  let clientY;
 
-
-  if (
+  const touch =
     event.touches &&
-    event.touches.length > 0
-  ) {
-
-    clientX =
-      event.touches[0].clientX;
-
-    clientY =
-      event.touches[0].clientY;
-
-  } else {
-
-    clientX =
-      event.clientX;
-
-    clientY =
-      event.clientY;
-
-  }
+    event.touches.length
+      ? event.touches[0]
+      : event;
 
 
   return {
 
     x:
-      clientX -
+      touch.clientX -
       rect.left,
 
     y:
-      clientY -
+      touch.clientY -
       rect.top
 
   };
@@ -455,40 +659,45 @@ function getPosition(event) {
 }
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT START
-   ========================================================= */
+   ====================================================== */
 
 function startDrawing(event) {
 
   event.preventDefault();
 
-  /*
-    Tastatur sicher schließen.
-  */
-
   closeKeyboard();
 
-  drawing = true;
+  drawing =
+    true;
 
-  hasSignature = true;
+  hasSignature =
+    true;
+
 
   const position =
-    getPosition(event);
+    getPosition(
+      event
+    );
+
 
   ctx.beginPath();
 
+
   ctx.moveTo(
+
     position.x,
     position.y
+
   );
 
 }
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT ZEICHNEN
-   ========================================================= */
+   ====================================================== */
 
 function draw(event) {
 
@@ -498,24 +707,32 @@ function draw(event) {
 
   }
 
+
   event.preventDefault();
 
+
   const position =
-    getPosition(event);
+    getPosition(
+      event
+    );
+
 
   ctx.lineTo(
+
     position.x,
     position.y
+
   );
+
 
   ctx.stroke();
 
 }
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT ENDE
-   ========================================================= */
+   ====================================================== */
 
 function stopDrawing(event) {
 
@@ -525,45 +742,67 @@ function stopDrawing(event) {
 
   }
 
-  drawing = false;
+
+  drawing =
+    false;
+
 
   ctx.closePath();
 
 }
 
 
-/* =========================================================
-   TOUCH
-   ========================================================= */
+/* ======================================================
+   TOUCH EVENTS
+   ====================================================== */
 
 canvas.addEventListener(
+
   "touchstart",
   startDrawing,
   {
     passive: false
   }
+
 );
 
+
 canvas.addEventListener(
+
   "touchmove",
   draw,
   {
     passive: false
   }
+
 );
 
+
 canvas.addEventListener(
+
   "touchend",
   stopDrawing,
   {
     passive: false
   }
+
 );
 
 
-/* =========================================================
-   MAUS / FALLBACK
-   ========================================================= */
+canvas.addEventListener(
+
+  "touchcancel",
+  stopDrawing,
+  {
+    passive: false
+  }
+
+);
+
+
+/* ======================================================
+   MAUS FALLBACK
+   ====================================================== */
 
 canvas.addEventListener(
   "mousedown",
@@ -586,57 +825,117 @@ canvas.addEventListener(
 );
 
 
-/* =========================================================
+/* ======================================================
    UNTERSCHRIFT LÖSCHEN
-   ========================================================= */
+   ====================================================== */
 
 function clearSignature() {
 
+  const rect =
+    canvas.getBoundingClientRect();
+
+
   ctx.clearRect(
+
     0,
     0,
-    canvas.width,
-    canvas.height
+    rect.width,
+    rect.height
+
   );
 
-  hasSignature = false;
+
+  hasSignature =
+    false;
 
 }
 
 
-/* =========================================================
+/* ======================================================
+   EMPFÄNGER DATEN
+   ====================================================== */
+
+function getReceiverData() {
+
+  const selected =
+    document.querySelector(
+      'input[name="receiverType"]:checked'
+    );
+
+
+  const type =
+    selected.value;
+
+
+  let name =
+    "";
+
+
+  if (
+    type ===
+    "Andere anwesende Person"
+  ) {
+
+    name =
+      otherPersonName
+        .value
+        .trim();
+
+  }
+
+
+  return {
+
+    type:
+      type,
+
+    name:
+      name
+
+  };
+
+}
+
+
+/* ======================================================
    SPEICHERN
-   ========================================================= */
+   ====================================================== */
 
 function saveRecord() {
 
-  const name =
-    nameInput.value.trim();
-
-  const barcode =
-    barcodeInput.value.trim();
+  const receiver =
+    getReceiverData();
 
 
-  if (!name) {
+  const code =
+    barcode.value.trim();
+
+
+  if (
+    receiver.type ===
+    "Andere anwesende Person"
+    &&
+    !receiver.name
+  ) {
 
     alert(
-      "Bitte zuerst den Namen des Kunden eingeben."
+      "Bitte den Namen der anwesenden Person eingeben."
     );
 
-    nameInput.focus();
+    otherPersonName.focus();
 
     return;
 
   }
 
 
-  if (!barcode) {
+  if (!code) {
 
     alert(
       "Bitte zuerst den Barcode scannen."
     );
 
-    barcodeInput.focus();
+    barcode.focus();
 
     return;
 
@@ -646,7 +945,7 @@ function saveRecord() {
   if (!hasSignature) {
 
     alert(
-      "Bitte den Kunden unterschreiben lassen."
+      "Bitte den Empfang unterschreiben lassen."
     );
 
     return;
@@ -656,11 +955,14 @@ function saveRecord() {
 
   const record = {
 
-    name:
-      name,
+    receiverType:
+      receiver.type,
+
+    receiverName:
+      receiver.name,
 
     barcode:
-      barcode,
+      code,
 
     date:
       new Date().toLocaleString(
@@ -675,11 +977,17 @@ function saveRecord() {
   };
 
 
-  let records =
+  const records =
+
     JSON.parse(
+
       localStorage.getItem(
         "zebraRecords"
-      ) || "[]"
+      )
+
+      ||
+      "[]"
+
     );
 
 
@@ -689,56 +997,111 @@ function saveRecord() {
 
 
   localStorage.setItem(
+
     "zebraRecords",
-    JSON.stringify(records)
+
+    JSON.stringify(
+      records
+    )
+
   );
 
 
   loadRecords();
 
 
-  nameInput.value = "";
+  /* Formular zurücksetzen */
 
-  barcodeInput.value = "";
+  otherPersonName.value =
+    "";
+
+  barcode.value =
+    "";
+
 
   clearSignature();
+
 
   closeKeyboard();
 
 
-  const message =
+  document
+    .querySelector(
+      'input[name="receiverType"][value="Empfänger"]'
+    )
+    .checked =
+    true;
+
+
+  otherPersonBox
+    .classList
+    .add("hidden");
+
+
+  const success =
     document.getElementById(
       "success"
     );
 
-  message.style.display =
+
+  success.style.display =
     "block";
 
 
   setTimeout(
+
     function() {
 
-      message.style.display =
+      success.style.display =
         "none";
 
     },
+
     3000
+
   );
 
 }
 
 
-/* =========================================================
-   GESPEICHERTE VORGÄNGE
-   ========================================================= */
+/* ======================================================
+   HTML SICHER DARSTELLEN
+   ====================================================== */
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement(
+      "div"
+    );
+
+
+  div.textContent =
+    text;
+
+
+  return div.innerHTML;
+
+}
+
+
+/* ======================================================
+   VORGÄNGE LADEN
+   ====================================================== */
 
 function loadRecords() {
 
   const records =
+
     JSON.parse(
+
       localStorage.getItem(
         "zebraRecords"
-      ) || "[]"
+      )
+
+      ||
+      "[]"
+
     );
 
 
@@ -753,8 +1116,11 @@ function loadRecords() {
   ) {
 
     container.innerHTML =
+
       '<div class="empty">' +
+
       'Noch keine Vorgänge gespeichert.' +
+
       '</div>';
 
     return;
@@ -767,42 +1133,83 @@ function loadRecords() {
 
 
   records.forEach(
+
     function(record) {
+
 
       const div =
         document.createElement(
           "div"
         );
 
+
       div.className =
         "record";
 
 
-      div.innerHTML =
+      let html =
 
-        "<div><strong>Name:</strong> " +
+        "<div><strong>Empfangen von:</strong> " +
+
         escapeHtml(
-          record.name
+          record.receiverType
         ) +
-        "</div>" +
+
+        "</div>";
+
+
+      if (
+        record.receiverName
+      ) {
+
+        html +=
+
+          "<div><strong>Name:</strong> " +
+
+          escapeHtml(
+            record.receiverName
+          ) +
+
+          "</div>";
+
+      }
+
+
+      html +=
 
         "<div><strong>Barcode:</strong> " +
+
         escapeHtml(
           record.barcode
         ) +
-        "</div>" +
+
+        "</div>";
+
+
+      html +=
 
         "<div><strong>Datum:</strong> " +
+
         escapeHtml(
           record.date
         ) +
-        "</div>" +
+
+        "</div>";
+
+
+      html +=
 
         "<div><strong>Unterschrift:</strong></div>" +
 
         '<img class="signature-image" src="' +
+
         record.signature +
+
         '" alt="Unterschrift">';
+
+
+      div.innerHTML =
+        html;
 
 
       container.appendChild(
@@ -810,41 +1217,311 @@ function loadRecords() {
       );
 
     }
+
   );
 
 }
 
 
-/* =========================================================
-   SICHERER TEXT
-   ========================================================= */
+/* ======================================================
+   PDF ERSTELLEN
+   ====================================================== */
 
-function escapeHtml(text) {
+function createPDF() {
 
-  const div =
-    document.createElement(
-      "div"
+  const receiver =
+    getReceiverData();
+
+
+  const code =
+    barcode.value.trim();
+
+
+  if (
+    receiver.type ===
+    "Andere anwesende Person"
+    &&
+    !receiver.name
+  ) {
+
+    alert(
+      "Bitte den Namen der anwesenden Person eingeben."
     );
 
-  div.textContent =
-    text;
+    return;
 
-  return div.innerHTML;
+  }
+
+
+  if (!code) {
+
+    alert(
+      "Bitte zuerst den Barcode scannen."
+    );
+
+    return;
+
+  }
+
+
+  if (!hasSignature) {
+
+    alert(
+      "Bitte zuerst unterschreiben."
+    );
+
+    return;
+
+  }
+
+
+  const signature =
+    canvas.toDataURL(
+      "image/png"
+    );
+
+
+  const date =
+    new Date().toLocaleString(
+      "de-DE"
+    );
+
+
+  /*
+    Neues Fenster für die PDF-Druckansicht.
+  */
+
+  const pdfWindow =
+    window.open(
+      "",
+      "_blank"
+    );
+
+
+  if (!pdfWindow) {
+
+    alert(
+      "Das PDF-Fenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben."
+    );
+
+    return;
+
+  }
+
+
+  const personLine =
+
+    receiver.name
+
+      ?
+
+      `
+      <tr>
+        <td>Name</td>
+        <td>${escapeHtml(receiver.name)}</td>
+      </tr>
+      `
+
+      :
+
+      "";
+
+
+  pdfWindow.document.write(`
+
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Kundenerfassung</title>
+
+<style>
+
+body {
+
+  font-family: Arial, sans-serif;
+
+  margin: 40px;
+
+  color: #222;
+
+}
+
+h1 {
+
+  font-size: 28px;
+
+  margin-bottom: 30px;
+
+}
+
+table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+}
+
+td {
+
+  padding: 12px;
+
+  border-bottom: 1px solid #ddd;
+
+}
+
+td:first-child {
+
+  font-weight: bold;
+
+  width: 220px;
+
+}
+
+h2 {
+
+  margin-top: 35px;
+
+}
+
+.signature {
+
+  width: 450px;
+
+  max-width: 100%;
+
+  border: 1px solid #999;
+
+  margin-top: 10px;
+
+}
+
+.info {
+
+  margin-top: 30px;
+
+  color: #666;
+
+  font-size: 14px;
+
+}
+
+@media print {
+
+  .info {
+
+    display: none;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Kundenerfassung</h1>
+
+<table>
+
+<tr>
+
+<td>Empfangen von</td>
+
+<td>${escapeHtml(receiver.type)}</td>
+
+</tr>
+
+${personLine}
+
+<tr>
+
+<td>Barcode</td>
+
+<td>${escapeHtml(code)}</td>
+
+</tr>
+
+<tr>
+
+<td>Datum / Uhrzeit</td>
+
+<td>${escapeHtml(date)}</td>
+
+</tr>
+
+</table>
+
+<h2>Unterschrift</h2>
+
+<img
+  class="signature"
+  src="${signature}"
+  alt="Unterschrift">
+
+<div class="info">
+
+Im Druckdialog bitte
+„Als PDF speichern“ auswählen.
+
+</div>
+
+<script>
+
+window.onload = function() {
+
+  setTimeout(
+
+    function() {
+
+      window.print();
+
+    },
+
+    400
+
+  );
+
+};
+
+<\/script>
+
+</body>
+
+</html>
+
+`);
+
+
+  pdfWindow.document.close();
 
 }
 
 
-/* =========================================================
+/* ======================================================
    ALLE VORGÄNGE LÖSCHEN
-   ========================================================= */
+   ====================================================== */
 
 function deleteAllRecords() {
 
   const records =
+
     JSON.parse(
+
       localStorage.getItem(
         "zebraRecords"
-      ) || "[]"
+      )
+
+      ||
+      "[]"
+
     );
 
 
@@ -862,14 +1539,17 @@ function deleteAllRecords() {
 
 
   if (
+
     confirm(
       "Wirklich alle Vorgänge löschen?"
     )
+
   ) {
 
     localStorage.removeItem(
       "zebraRecords"
     );
+
 
     loadRecords();
 
@@ -878,9 +1558,9 @@ function deleteAllRecords() {
 }
 
 
-/* =========================================================
+/* ======================================================
    START
-   ========================================================= */
+   ====================================================== */
 
 loadRecords();
 
