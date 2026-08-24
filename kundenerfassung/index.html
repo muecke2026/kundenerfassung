@@ -337,7 +337,7 @@ button {
         <h2>3. Unterschrift</h2>
 
         <div class="signature-wrap">
-            <canvas id="signatureCanvas"></canvas>
+            <canvas id="signatureCanvas" tabindex="-1"></canvas>
         </div>
 
         <p class="signature-hint">
@@ -381,185 +381,480 @@ let lastX = 0;
 let lastY = 0;
 
 /* =========================================================
-   CANVAS – STABIL IM HOCH-/QUERFORMAT
+   UNTERSCHRIFT – FESTE ZEICHENKOORDINATEN
    ========================================================= */
 
-let signatureContentWidth = 0;
-let signatureContentHeight = 0;
+/*
+   WICHTIG:
+   Die Unterschrift wird NICHT als fertiges Bild beim Drehen
+   des Geräts skaliert.
 
-function setupCanvas(preserveSignature = false) {
+   Stattdessen speichern wir die tatsächlich gezeichneten
+   Punkte in CSS-Pixeln und zeichnen sie nach einer
+   Bildschirmdrehung auf dem neuen Canvas wieder mit
+   denselben Koordinaten.
+
+   Dadurch bleibt die Unterschrift gleich groß und wird
+   im Querformat nicht verzerrt.
+*/
+
+let strokes = [];
+let currentStroke = null;
+
+
+/* =========================================================
+   CANVAS EINRICHTEN
+   ========================================================= */
+
+function setupCanvas() {
+
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
 
-    let oldImage = null;
-    let oldImageWidth = 0;
-    let oldImageHeight = 0;
+    /*
+       Canvas-Pixelgröße an das aktuelle Display anpassen.
+       Die gespeicherten strokes bleiben unverändert.
+    */
 
-    if (preserveSignature && hasSignature && canvas.width && canvas.height) {
-        try {
-            oldImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            oldImageWidth = canvas.width;
-            oldImageHeight = canvas.height;
-        } catch (_) {
-            oldImage = null;
-        }
-    }
+    canvas.width =
+        Math.max(
+            1,
+            Math.round(rect.width * dpr)
+        );
 
-    canvas.width = Math.max(1, Math.round(rect.width * dpr));
-    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    canvas.height =
+        Math.max(
+            1,
+            Math.round(rect.height * dpr)
+        );
 
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    /*
+       Ab jetzt arbeitet die Zeichenlogik wieder in
+       sichtbaren CSS-Pixeln.
+    */
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+
     ctx.lineWidth = 2.5;
+
     ctx.lineCap = "round";
+
     ctx.lineJoin = "round";
+
     ctx.strokeStyle = "#000000";
+
     ctx.fillStyle = "#000000";
 
-    if (oldImage) {
-        const temp = document.createElement("canvas");
-        temp.width = oldImageWidth;
-        temp.height = oldImageHeight;
-        const tempCtx = temp.getContext("2d");
-        tempCtx.putImageData(oldImage, 0, 0);
 
-        /*
-           Die alte Unterschrift wird in ihrer bisherigen CSS-Größe
-           zurückgesetzt. Sie wird NICHT auf die neue Querformatbreite
-           gestreckt. Nur die leere Fläche des Canvas wird breiter.
-        */
-        const targetWidth = Math.min(
-            signatureContentWidth || (oldImageWidth / dpr),
-            rect.width
-        );
-        const targetHeight = Math.min(
-            signatureContentHeight || (oldImageHeight / dpr),
-            rect.height
-        );
+    redrawSignature();
 
-        ctx.drawImage(
-            temp,
-            0,
-            0,
-            oldImageWidth,
-            oldImageHeight,
-            0,
-            0,
-            targetWidth,
-            targetHeight
-        );
-    }
 }
 
-function getPosition(event) {
-    const rect = canvas.getBoundingClientRect();
-
-    return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top
-    };
-}
 
 /* =========================================================
-   TASTATUR SCHLIESSEN – OHNE CANVAS ZU VERÄNDERN
+   GESPEICHERTE UNTERSCHRIFT NEU ZEICHNEN
+   ========================================================= */
+
+function redrawSignature() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    ctx.clearRect(
+        0,
+        0,
+        rect.width,
+        rect.height
+    );
+
+
+    ctx.lineWidth = 2.5;
+
+    ctx.lineCap = "round";
+
+    ctx.lineJoin = "round";
+
+    ctx.strokeStyle = "#000000";
+
+
+    strokes.forEach(
+        function (stroke) {
+
+            if (!stroke || stroke.length === 0) {
+                return;
+            }
+
+
+            /*
+               Ein einzelner Punkt wird als Punkt
+               dargestellt.
+            */
+
+            if (stroke.length === 1) {
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    stroke[0].x,
+                    stroke[0].y,
+                    ctx.lineWidth / 2,
+                    0,
+                    Math.PI * 2
+                );
+
+                ctx.fill();
+
+                return;
+
+            }
+
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                stroke[0].x,
+                stroke[0].y
+            );
+
+
+            for (
+                let i = 1;
+                i < stroke.length;
+                i++
+            ) {
+
+                ctx.lineTo(
+                    stroke[i].x,
+                    stroke[i].y
+                );
+
+            }
+
+
+            ctx.stroke();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   POSITION DES FINGERS / STIFTS
+   ========================================================= */
+
+function getPosition(event) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            event.clientX -
+            rect.left,
+
+        y:
+            event.clientY -
+            rect.top
+
+    };
+
+}
+
+
+/* =========================================================
+   TASTATUR SCHLIESSEN
    ========================================================= */
 
 function closeKeyboard() {
-    const active = document.activeElement;
 
-    if (active && typeof active.blur === "function") {
-        active.blur();
+    const active =
+        document.activeElement;
+
+
+    if (
+        active &&
+        typeof active.blur === "function"
+    ) {
+
+        try {
+            active.blur();
+        } catch (_) {}
+
     }
 
-    /* Android 7 / T51: zweiter blur nach kurzer Verzögerung */
-    setTimeout(function () {
-        const current = document.activeElement;
-        if (current && typeof current.blur === "function") {
-            current.blur();
-        }
-    }, 80);
+
+    /*
+       Auf dem alten Android des T51 hilft es,
+       den Fokus kurz auf das Canvas zu legen.
+       Das Canvas ist kein Texteingabefeld und
+       öffnet deshalb keine Tastatur.
+    */
+
+    try {
+
+        canvas.focus();
+
+        canvas.blur();
+
+    } catch (_) {}
+
+
+    /*
+       Noch einmal nach kurzer Verzögerung.
+    */
+
+    setTimeout(
+        function () {
+
+            const current =
+                document.activeElement;
+
+
+            if (
+                current &&
+                typeof current.blur === "function"
+            ) {
+
+                try {
+                    current.blur();
+                } catch (_) {}
+
+            }
+
+        },
+        100
+    );
+
 }
+
 
 /* =========================================================
    UNTERSCHRIFT START
    ========================================================= */
 
 function startDrawing(event) {
+
     event.preventDefault();
 
     closeKeyboard();
 
+
     drawing = true;
+
     hasSignature = true;
 
-    if (!signatureContentWidth) {
-        signatureContentWidth = canvas.clientWidth;
-        signatureContentHeight = canvas.clientHeight;
-    }
 
-    const pos = getPosition(event);
+    const pos =
+        getPosition(event);
 
-    lastX = pos.x;
-    lastY = pos.y;
+
+    lastX =
+        pos.x;
+
+    lastY =
+        pos.y;
+
+
+    currentStroke = [
+
+        {
+            x: pos.x,
+            y: pos.y
+        }
+
+    ];
+
+
+    strokes.push(
+        currentStroke
+    );
+
 
     try {
-        canvas.setPointerCapture(event.pointerId);
+
+        canvas.setPointerCapture(
+            event.pointerId
+        );
+
     } catch (_) {}
 
+
+    /*
+       Sofort einen kleinen Punkt zeichnen.
+    */
+
     ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.arc(lastX, lastY, ctx.lineWidth / 2, 0, Math.PI * 2);
-    ctx.fillStyle = "#000000";
+
+    ctx.arc(
+        lastX,
+        lastY,
+        ctx.lineWidth / 2,
+        0,
+        Math.PI * 2
+    );
+
     ctx.fill();
+
 }
+
 
 /* =========================================================
    UNTERSCHRIFT ZEICHNEN
    ========================================================= */
 
 function draw(event) {
-    if (!drawing) return;
+
+    if (!drawing) {
+        return;
+    }
+
 
     event.preventDefault();
 
-    const pos = getPosition(event);
+
+    const pos =
+        getPosition(event);
+
+
+    /*
+       Punkt im aktuellen Strich speichern.
+    */
+
+    if (currentStroke) {
+
+        currentStroke.push({
+
+            x: pos.x,
+
+            y: pos.y
+
+        });
+
+    }
+
+
+    /*
+       Linie zeichnen.
+    */
 
     ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(pos.x, pos.y);
+
+    ctx.moveTo(
+        lastX,
+        lastY
+    );
+
+    ctx.lineTo(
+        pos.x,
+        pos.y
+    );
+
     ctx.stroke();
 
-    lastX = pos.x;
-    lastY = pos.y;
+
+    lastX =
+        pos.x;
+
+    lastY =
+        pos.y;
+
 }
+
 
 /* =========================================================
    UNTERSCHRIFT ENDE
    ========================================================= */
 
 function stopDrawing(event) {
-    if (event) event.preventDefault();
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
 
     drawing = false;
 
+    currentStroke = null;
+
+
     try {
-        if (event && event.pointerId !== undefined) {
-            canvas.releasePointerCapture(event.pointerId);
+
+        if (
+            event &&
+            event.pointerId !== undefined
+        ) {
+
+            canvas.releasePointerCapture(
+                event.pointerId
+            );
+
         }
+
     } catch (_) {}
+
 }
+
 
 /* =========================================================
    POINTER EVENTS
    ========================================================= */
 
-canvas.addEventListener("pointerdown", startDrawing, { passive: false });
-canvas.addEventListener("pointermove", draw, { passive: false });
-canvas.addEventListener("pointerup", stopDrawing, { passive: false });
-canvas.addEventListener("pointercancel", stopDrawing, { passive: false });
+canvas.addEventListener(
+    "pointerdown",
+    startDrawing,
+    {
+        passive: false
+    }
+);
+
+
+canvas.addEventListener(
+    "pointermove",
+    draw,
+    {
+        passive: false
+    }
+);
+
+
+canvas.addEventListener(
+    "pointerup",
+    stopDrawing,
+    {
+        passive: false
+    }
+);
+
+
+canvas.addEventListener(
+    "pointercancel",
+    stopDrawing,
+    {
+        passive: false
+    }
+);
+
 
 /* =========================================================
    UNTERSCHRIFT LÖSCHEN
    ========================================================= */
+
+
 
 document.getElementById("clearSignature").addEventListener("click", function () {
     const rect = canvas.getBoundingClientRect();
@@ -567,8 +862,9 @@ document.getElementById("clearSignature").addEventListener("click", function () 
     ctx.clearRect(0, 0, rect.width, rect.height);
 
     hasSignature = false;
-    signatureContentWidth = 0;
-    signatureContentHeight = 0;
+    strokes = [];
+    currentStroke = null;
+    setupCanvas();
 });
 
 /* =========================================================
@@ -729,56 +1025,19 @@ function validateForm() {
 }
 
 /* =========================================================
-   ZUSAMMENFASSUNG
-   ========================================================= */
-
-function createSummary() {
-    const customerName = value("customerName");
-    const customerNumber = value("customerNumber");
-    const deliveryNumber = value("deliveryNumber");
-    const packages = getPackages();
-    const notes = value("notes");
-
-    let recipientText;
-
-    if (selectedRecipient() === "recipient") {
-        recipientText = "Empfänger selbst";
-    } else {
-        recipientText = "Andere anwesende Person: " + value("otherPersonName");
-    }
-
-    const date = new Date().toLocaleString("de-DE");
-
-    document.getElementById("summary").innerHTML = `
-        <div><strong>Kunde:</strong> ${escapeHtml(customerName)}</div>
-        <div><strong>Kundennummer:</strong> ${escapeHtml(customerNumber || "-")}</div>
-        <div><strong>Lieferschein/Auftrag:</strong> ${escapeHtml(deliveryNumber || "-")}</div>
-        <div><strong>Pakete:</strong><br>${packages.length ? packages.map(function(code, index) { return (index + 1) + ". " + escapeHtml(code); }).join("<br>") : "-"}</div>
-        <div><strong>Empfang:</strong> ${escapeHtml(recipientText)}</div>
-        <div><strong>Bemerkung:</strong> ${escapeHtml(notes || "-")}</div>
-        <div><strong>Datum:</strong> ${escapeHtml(date)}</div>
-    `;
-
-    document.getElementById("summaryCard").style.display = "block";
-}
-
-function escapeHtml(text) {
-    return String(text)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-/* =========================================================
    ABSCHLUSS
    ========================================================= */
 
 document.getElementById("finishButton").addEventListener("click", function () {
-    if (!validateForm()) return;
 
-    showStatus("Erfassung abgeschlossen. Jetzt kann das PDF erstellt und gespeichert werden.");
+    if (!validateForm()) {
+        return;
+    }
+
+    showStatus(
+        "Erfassung abgeschlossen. Jetzt kann das PDF erstellt und gespeichert werden."
+    );
+
 });
 
 /* =========================================================
@@ -949,8 +1208,9 @@ document.getElementById("newButton").addEventListener("click", function () {
     ctx.clearRect(0, 0, rect.width, rect.height);
 
     hasSignature = false;
-    signatureContentWidth = 0;
-    signatureContentHeight = 0;
+    strokes = [];
+    currentStroke = null;
+    setupCanvas();
     document.getElementById("status").style.display = "none";
 
     window.scrollTo({
@@ -972,20 +1232,36 @@ window.addEventListener("load", function () {
 let resizeTimer = null;
 
 window.addEventListener("orientationchange", function () {
+
     clearTimeout(resizeTimer);
 
     resizeTimer = setTimeout(function () {
-        setupCanvas(hasSignature);
+
+        /*
+           Nur die Canvas-Auflösung anpassen und
+           dieselben gespeicherten Punkte neu zeichnen.
+           KEINE Skalierung der Unterschrift.
+        */
+
+        setupCanvas();
+
     }, 250);
+
 });
+
 
 window.addEventListener("resize", function () {
+
     clearTimeout(resizeTimer);
 
     resizeTimer = setTimeout(function () {
-        setupCanvas(hasSignature);
+
+        setupCanvas();
+
     }, 150);
+
 });
+
 </script>
 
 </body>
