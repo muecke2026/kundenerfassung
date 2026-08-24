@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0,
-               maximum-scale=1.0, user-scalable=no">
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
 
 <title>Kundenerfassung</title>
 
-<!-- PDF-Bibliothek -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -18,8 +19,7 @@
     box-sizing: border-box;
 }
 
-html,
-body {
+html, body {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -122,33 +122,42 @@ input[type="text"]:focus {
 }
 
 
-/* =========================================
+/* ================================
    UNTERSCHRIFT
-   ========================================= */
+   ================================ */
 
 #signatureCanvas {
+
     display: block;
+
     width: 100%;
+
+    /*
+       Gleiche Höhe in Hoch- und Querformat.
+       Dadurch wird beim Drehen nichts gestreckt.
+    */
+
     height: 280px;
 
     background: white;
 
     border: 3px solid #64748b;
+
     border-radius: 12px;
 
     touch-action: none;
 
     user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
 
-    outline: none;
+    -webkit-user-select: none;
+
+    -webkit-touch-callout: none;
 }
 
 
-/* =========================================
+/* ================================
    BUTTONS
-   ========================================= */
+   ================================ */
 
 button {
     width: 100%;
@@ -222,23 +231,6 @@ button {
     font-size: 16px;
 }
 
-
-/* =========================================
-   QUERFORMAT
-   ========================================= */
-
-@media (orientation: landscape) {
-
-    #signatureCanvas {
-        height: 260px;
-    }
-
-    .container {
-        max-width: 1000px;
-    }
-
-}
-
 </style>
 </head>
 
@@ -269,16 +261,15 @@ class="success">
 </div>
 
 
-<!-- =====================================
+<!-- ================================
      EMPFÄNGER
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
 
 <div class="step">
 SCHRITT 1
 </div>
-
 
 <label>
 Wer hat die Sendung erhalten?
@@ -318,7 +309,6 @@ Eine andere anwesende Person
 id="otherPersonBox"
 class="hidden">
 
-
 <label
 for="otherPersonName">
 
@@ -326,22 +316,20 @@ Name der anwesenden Person
 
 </label>
 
-
 <input
 id="otherPersonName"
 type="text"
 placeholder="Name eingeben"
 autocomplete="off">
 
-
 </div>
 
 </div>
 
 
-<!-- =====================================
+<!-- ================================
      BARCODE
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
 
@@ -349,21 +337,15 @@ autocomplete="off">
 SCHRITT 2
 </div>
 
-
-<label
-for="barcode">
-
+<label for="barcode">
 Barcode
-
 </label>
-
 
 <input
 id="barcode"
 type="text"
 placeholder="Barcode scannen..."
 autocomplete="off">
-
 
 <div class="help">
 
@@ -375,9 +357,9 @@ Nach dem Scan wird die Tastatur geschlossen.
 </div>
 
 
-<!-- =====================================
+<!-- ================================
      UNTERSCHRIFT
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
 
@@ -385,16 +367,11 @@ Nach dem Scan wird die Tastatur geschlossen.
 SCHRITT 3
 </div>
 
-
 <label>
 Unterschrift
 </label>
 
-
-<canvas
-id="signatureCanvas">
-</canvas>
-
+<canvas id="signatureCanvas"></canvas>
 
 <button
 class="clear"
@@ -408,12 +385,11 @@ Unterschrift löschen
 </div>
 
 
-<!-- =====================================
-     SPEICHERN / PDF / E-MAIL
-     ===================================== -->
+<!-- ================================
+     AKTIONEN
+     ================================ -->
 
 <div class="card">
-
 
 <button
 class="save"
@@ -444,33 +420,26 @@ onclick="sendPDFByEmail()">
 
 </button>
 
-
 </div>
 
 
-<!-- =====================================
+<!-- ================================
      GESPEICHERTE VORGÄNGE
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
 
 <div class="step">
-
 📋 Gespeicherte Vorgänge
-
 </div>
-
 
 <div id="records">
 
 <div class="empty">
-
 Noch keine Vorgänge gespeichert.
-
 </div>
 
 </div>
-
 
 <button
 class="delete"
@@ -488,7 +457,6 @@ Alle Vorgänge löschen
 
 
 <script>
-
 
 /* =====================================================
    ELEMENTE
@@ -510,6 +478,185 @@ let hasSignature = false;
 
 
 /* =====================================================
+   CANVAS EINRICHTEN
+   ===================================================== */
+
+function setupCanvas() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    /*
+       Interne Canvas-Größe entspricht exakt
+       der sichtbaren CSS-Größe.
+    */
+
+    canvas.width =
+        Math.round(rect.width);
+
+    canvas.height =
+        Math.round(rect.height);
+
+
+    ctx.setTransform(
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    );
+
+
+    ctx.lineWidth = 3;
+
+    ctx.lineCap = "round";
+
+    ctx.lineJoin = "round";
+
+    ctx.strokeStyle = "#000";
+
+}
+
+
+/*
+   Nach dem vollständigen Laden einrichten.
+*/
+
+window.addEventListener(
+    "load",
+    function() {
+
+        setTimeout(
+            setupCanvas,
+            200
+        );
+
+    }
+);
+
+
+/* =====================================================
+   ORIENTIERUNG
+   ===================================================== */
+
+/*
+   WICHTIG:
+
+   Wenn noch NICHT unterschrieben wurde,
+   wird das Canvas nach einer Drehung neu
+   dimensioniert.
+
+   Eine vorhandene Unterschrift wird NICHT
+   automatisch skaliert.
+*/
+
+let resizeTimer = null;
+
+
+function orientationChanged() {
+
+    clearTimeout(
+        resizeTimer
+    );
+
+
+    resizeTimer =
+        setTimeout(
+            function() {
+
+                if (!hasSignature) {
+
+                    setupCanvas();
+
+                }
+
+            },
+            300
+        );
+
+}
+
+
+window.addEventListener(
+    "resize",
+    orientationChanged
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    orientationChanged
+);
+
+
+/* =====================================================
+   POSITION – 1:1
+   ===================================================== */
+
+function getPosition(event) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    /*
+       Skalierungsfaktor zwischen interner
+       Canvas-Größe und sichtbarer Größe.
+
+       Damit ist die Position auch dann
+       exakt, wenn Android/Zebra die Canvas
+       geringfügig anders darstellt.
+    */
+
+    const scaleX =
+        canvas.width /
+        rect.width;
+
+
+    const scaleY =
+        canvas.height /
+        rect.height;
+
+
+    return {
+
+        x:
+            (event.clientX -
+             rect.left) *
+            scaleX,
+
+        y:
+            (event.clientY -
+             rect.top) *
+            scaleY
+
+    };
+
+}
+
+
+/* =====================================================
+   TASTATUR SCHLIESSEN
+   ===================================================== */
+
+function closeKeyboard() {
+
+    if (
+        document.activeElement
+    ) {
+
+        document
+            .activeElement
+            .blur();
+
+    }
+
+}
+
+
+/* =====================================================
    EMPFÄNGER
    ===================================================== */
 
@@ -528,60 +675,40 @@ document
 .querySelectorAll(
     'input[name="receiverType"]'
 )
-.forEach(function(radio) {
+.forEach(
+    function(radio) {
 
-    radio.addEventListener(
-        "change",
-        function() {
+        radio.addEventListener(
+            "change",
+            function() {
 
-            if (
-                this.value ===
-                "Andere anwesende Person"
-                &&
-                this.checked
-            ) {
+                if (
+                    this.value ===
+                    "Andere anwesende Person"
+                ) {
 
-                otherPersonBox
-                    .classList
-                    .remove("hidden");
+                    otherPersonBox
+                        .classList
+                        .remove("hidden");
+
+                }
+
+                else {
+
+                    otherPersonBox
+                        .classList
+                        .add("hidden");
+
+                    otherPersonName.value =
+                        "";
+
+                }
 
             }
-
-            else {
-
-                otherPersonBox
-                    .classList
-                    .add("hidden");
-
-                otherPersonName.value = "";
-
-            }
-
-        }
-    );
-
-});
-
-
-/* =====================================================
-   TASTATUR SCHLIESSEN
-   ===================================================== */
-
-function closeKeyboard() {
-
-    if (document.activeElement) {
-
-        document
-            .activeElement
-            .blur();
+        );
 
     }
-
-    otherPersonName.blur();
-
-    barcode.blur();
-
-}
+);
 
 
 /* =====================================================
@@ -600,8 +727,6 @@ barcode.addEventListener(
 
         if (
             event.key === "Enter"
-            ||
-            event.keyCode === 13
         ) {
 
             event.preventDefault();
@@ -615,106 +740,6 @@ barcode.addEventListener(
 
 
 /* =====================================================
-   CANVAS
-   ===================================================== */
-
-function getCanvasSize() {
-
-    const rect =
-        canvas.getBoundingClientRect();
-
-    return {
-
-        width:
-            Math.max(
-                1,
-                Math.round(rect.width)
-            ),
-
-        height:
-            Math.max(
-                1,
-                Math.round(rect.height)
-            )
-
-    };
-
-}
-
-
-function setupCanvas() {
-
-    const size =
-        getCanvasSize();
-
-
-    canvas.width =
-        size.width;
-
-
-    canvas.height =
-        size.height;
-
-
-    ctx.setTransform(
-        1,
-        0,
-        0,
-        1,
-        0,
-        0
-    );
-
-
-    ctx.lineWidth =
-        3;
-
-
-    ctx.lineCap =
-        "round";
-
-
-    ctx.lineJoin =
-        "round";
-
-
-    ctx.strokeStyle =
-        "#000";
-
-}
-
-
-window.requestAnimationFrame(
-    setupCanvas
-);
-
-
-/* =====================================================
-   POSITION
-   ===================================================== */
-
-function getPosition(event) {
-
-    const rect =
-        canvas.getBoundingClientRect();
-
-
-    return {
-
-        x:
-            event.clientX -
-            rect.left,
-
-        y:
-            event.clientY -
-            rect.top
-
-    };
-
-}
-
-
-/* =====================================================
    UNTERSCHRIFT
    ===================================================== */
 
@@ -724,11 +749,9 @@ function startDrawing(event) {
 
     closeKeyboard();
 
-    drawing =
-        true;
+    drawing = true;
 
-    hasSignature =
-        true;
+    hasSignature = true;
 
 
     const position =
@@ -739,11 +762,8 @@ function startDrawing(event) {
 
 
     ctx.moveTo(
-
         position.x,
-
         position.y
-
     );
 
 
@@ -783,11 +803,8 @@ function draw(event) {
 
 
     ctx.lineTo(
-
         position.x,
-
         position.y
-
     );
 
 
@@ -805,9 +822,7 @@ function stopDrawing(event) {
     }
 
 
-    drawing =
-        false;
-
+    drawing = false;
 
     ctx.closePath();
 
@@ -873,89 +888,20 @@ canvas.addEventListener(
 
 
 /* =====================================================
-   ORIENTIERUNG
-   ===================================================== */
-
-let orientationTimer = null;
-
-
-window.addEventListener(
-    "resize",
-    function() {
-
-        clearTimeout(
-            orientationTimer
-        );
-
-
-        orientationTimer =
-            setTimeout(
-                function() {
-
-                    /*
-                       Nur neu dimensionieren,
-                       wenn noch nicht unterschrieben wurde.
-                    */
-
-                    if (!hasSignature) {
-
-                        setupCanvas();
-
-                    }
-
-                },
-                250
-            );
-
-    }
-);
-
-
-window.addEventListener(
-    "orientationchange",
-    function() {
-
-        clearTimeout(
-            orientationTimer
-        );
-
-
-        orientationTimer =
-            setTimeout(
-                function() {
-
-                    if (!hasSignature) {
-
-                        setupCanvas();
-
-                    }
-
-                },
-                300
-            );
-
-    }
-);
-
-
-/* =====================================================
    UNTERSCHRIFT LÖSCHEN
    ===================================================== */
 
 function clearSignature() {
 
     ctx.clearRect(
-
         0,
         0,
         canvas.width,
         canvas.height
-
     );
 
 
-    hasSignature =
-        false;
+    hasSignature = false;
 
 }
 
@@ -994,11 +940,9 @@ function getReceiverData() {
 
     return {
 
-        type:
-            type,
+        type: type,
 
-        name:
-            name
+        name: name
 
     };
 
@@ -1074,7 +1018,7 @@ function saveRecord() {
     if (!hasSignature) {
 
         alert(
-            "Bitte den Empfang unterschreiben lassen."
+            "Bitte zuerst unterschreiben."
         );
 
         return;
@@ -1095,9 +1039,9 @@ function saveRecord() {
 
         date:
             new Date()
-                .toLocaleString(
-                    "de-DE"
-                ),
+            .toLocaleString(
+                "de-DE"
+            ),
 
         signature:
             canvas.toDataURL(
@@ -1133,10 +1077,9 @@ function saveRecord() {
     loadRecords();
 
 
-    otherPersonName.value = "";
-
     barcode.value = "";
 
+    otherPersonName.value = "";
 
     clearSignature();
 
@@ -1179,7 +1122,7 @@ function saveRecord() {
 
 
 /* =====================================================
-   VORGÄNGE
+   VORGÄNGE LADEN
    ===================================================== */
 
 function loadRecords() {
@@ -1302,13 +1245,9 @@ function loadRecords() {
 
                 +
 
-                '<img class="signature-image" src="'
+                '<img class="signature-image" src="' +
 
-                +
-
-                record.signature
-
-                +
+                record.signature +
 
                 '" alt="Unterschrift">';
 
@@ -1328,7 +1267,7 @@ function loadRecords() {
 
 
 /* =====================================================
-   PDF ERSTELLEN
+   PDF
    ===================================================== */
 
 function buildPDF() {
@@ -1339,7 +1278,7 @@ function buildPDF() {
     ) {
 
         alert(
-            "Die PDF-Bibliothek wurde noch nicht geladen. Bitte kurz warten und erneut versuchen."
+            "PDF-Bibliothek wird noch geladen. Bitte kurz warten."
         );
 
         return null;
@@ -1398,11 +1337,7 @@ function buildPDF() {
 
 
     const pdf =
-        new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4"
-        });
+        new jsPDF();
 
 
     const margin = 18;
@@ -1410,16 +1345,7 @@ function buildPDF() {
     let y = 22;
 
 
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-
-    pdf.setFontSize(
-        20
-    );
-
+    pdf.setFontSize(20);
 
     pdf.text(
         "Kundenerfassung",
@@ -1431,9 +1357,7 @@ function buildPDF() {
     y += 14;
 
 
-    pdf.setFontSize(
-        11
-    );
+    pdf.setFontSize(11);
 
 
     const rows = [
@@ -1446,7 +1370,9 @@ function buildPDF() {
     ];
 
 
-    if (receiver.name) {
+    if (
+        receiver.name
+    ) {
 
         rows.push([
             "Name",
@@ -1466,9 +1392,9 @@ function buildPDF() {
         [
             "Datum / Uhrzeit",
             new Date()
-                .toLocaleString(
-                    "de-DE"
-                )
+            .toLocaleString(
+                "de-DE"
+            )
         ]
 
     );
@@ -1482,39 +1408,24 @@ function buildPDF() {
                 "bold"
             );
 
-
             pdf.text(
                 row[0] + ":",
                 margin,
                 y
             );
 
-
             pdf.setFont(
                 "helvetica",
                 "normal"
             );
 
-
-            const wrapped =
-                pdf.splitTextToSize(
-                    row[1] || "-",
-                    125
-                );
-
-
             pdf.text(
-                wrapped,
+                row[1],
                 margin + 45,
                 y
             );
 
-
-            y +=
-                Math.max(
-                    7,
-                    wrapped.length * 5 + 2
-                );
+            y += 8;
 
         }
     );
@@ -1545,76 +1456,56 @@ function buildPDF() {
         );
 
 
-    const maxWidth = 170;
-
-    const maxHeight = 60;
-
-
     const ratio =
         canvas.width /
         canvas.height;
 
 
-    let imageWidth =
-        maxWidth;
+    let width = 170;
 
-
-    let imageHeight =
-        imageWidth /
+    let height =
+        width /
         ratio;
 
 
     if (
-        imageHeight >
-        maxHeight
+        height > 60
     ) {
 
-        imageHeight =
-            maxHeight;
+        height = 60;
 
-
-        imageWidth =
-            imageHeight *
+        width =
+            height *
             ratio;
 
     }
 
 
     pdf.addImage(
-
         signature,
-
         "PNG",
-
         margin,
-
         y,
-
-        imageWidth,
-
-        imageHeight
-
+        width,
+        height
     );
 
 
     const filename =
         "Kundenerfassung_" +
         new Date()
-            .toISOString()
-            .slice(0,10)
+        .toISOString()
+        .slice(0,10)
         +
         ".pdf";
 
 
     return {
 
-        pdf:
-            pdf,
+        pdf: pdf,
 
         blob:
-            pdf.output(
-                "blob"
-            ),
+            pdf.output("blob"),
 
         filename:
             filename
@@ -1625,7 +1516,7 @@ function buildPDF() {
 
 
 /* =====================================================
-   PDF HERUNTERLADEN
+   PDF ERSTELLEN
    ===================================================== */
 
 function createPDF() {
@@ -1667,32 +1558,23 @@ async function sendPDFByEmail() {
 
     const file =
         new File(
-
-            [
-                result.blob
-            ],
-
+            [result.blob],
             result.filename,
-
             {
                 type:
                     "application/pdf"
             }
-
         );
 
 
     /*
-       Android Share Sheet.
-       Wenn der Browser dies unterstützt,
-       wird das ECHTE PDF als Datei übergeben.
+       Das echte PDF wird an die
+       Android-Teilen-Funktion übergeben.
     */
 
     if (
-        navigator.share
-        &&
-        navigator.canShare
-        &&
+        navigator.share &&
+        navigator.canShare &&
         navigator.canShare({
             files: [file]
         })
@@ -1713,7 +1595,6 @@ async function sendPDFByEmail() {
 
             });
 
-
             return;
 
         }
@@ -1721,8 +1602,6 @@ async function sendPDFByEmail() {
         catch (error) {
 
             if (
-                error
-                &&
                 error.name ===
                 "AbortError"
             ) {
@@ -1737,7 +1616,9 @@ async function sendPDFByEmail() {
 
 
     /*
-       Fallback.
+       Falls der Browser keine
+       Dateifreigabe unterstützt:
+       PDF speichern.
     */
 
     result.pdf.save(
@@ -1746,9 +1627,7 @@ async function sendPDFByEmail() {
 
 
     alert(
-
-        "Der T51-Browser unterstützt das direkte Teilen des PDF-Anhangs nicht. Das PDF wurde gespeichert und kann anschließend in der Mail-App angehängt werden."
-
+        "Der Browser unterstützt das direkte Teilen des PDF-Anhangs nicht. Das PDF wurde gespeichert."
     );
 
 }
@@ -1792,7 +1671,6 @@ function deleteAllRecords() {
         localStorage.removeItem(
             "zebraRecords"
         );
-
 
         loadRecords();
 
