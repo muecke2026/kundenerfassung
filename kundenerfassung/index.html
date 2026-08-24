@@ -396,1559 +396,538 @@ button {
 </main>
 
 <script>
-      /* =========================================================
-   GRUNDELEMENTE
+"use strict";
+
+/* =========================================================
+   GRUNDLAGEN
    ========================================================= */
 
-const customerName =
-    document.getElementById("customerName");
+const canvas = document.getElementById("signatureCanvas");
+const ctx = canvas.getContext("2d");
 
-const customerNumber =
-    document.getElementById("customerNumber");
-
-const deliveryNumber =
-    document.getElementById("deliveryNumber");
-
-const notes =
-    document.getElementById("notes");
-
-const packageList =
-    document.getElementById("packageList");
-
-const addPackageButton =
-    document.getElementById("addPackageButton");
-
-const otherPersonBox =
-    document.getElementById("otherPersonBox");
-
-const otherPersonName =
-    document.getElementById("otherPersonName");
-
-const signatureCanvas =
-    document.getElementById("signatureCanvas");
-
-const signatureContext =
-    signatureCanvas.getContext("2d");
-
-const statusBox =
-    document.getElementById("status");
-
-const summaryCard =
-    document.getElementById("summaryCard");
-
-const summary =
-    document.getElementById("summary");
-
+let drawing = false;
 let hasSignature = false;
+let lastX = 0;
+let lastY = 0;
 
+/* =========================================================
+   CANVAS – EXAKTE DARSTELLUNG
+   ========================================================= */
+
+function setupCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    /* Interne Auflösung passend zur sichtbaren Größe */
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+
+    /*
+       Wir zeichnen danach in CSS-Pixeln.
+       Dadurch entsprechen die Koordinaten direkt
+       der Position des Fingers/Stiftes auf dem Bildschirm.
+    */
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#000000";
+}
+
+/* =========================================================
+   POSITION
+   ========================================================= */
+
+function getPosition(event) {
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+    };
+}
+
+/* =========================================================
+   UNTERSCHRIFT START
+   ========================================================= */
+
+function startDrawing(event) {
+    event.preventDefault();
+
+    drawing = true;
+    hasSignature = true;
+
+    const pos = getPosition(event);
+
+    lastX = pos.x;
+    lastY = pos.y;
+
+    try {
+        canvas.setPointerCapture(event.pointerId);
+    } catch (_) {}
+
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+
+    /* Kleiner Punkt auch bei kurzem Antippen */
+    ctx.arc(lastX, lastY, ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.fillStyle = "#000000";
+    ctx.fill();
+}
+
+/* =========================================================
+   UNTERSCHRIFT ZEICHNEN
+   ========================================================= */
+
+function draw(event) {
+    if (!drawing) return;
+
+    event.preventDefault();
+
+    const pos = getPosition(event);
+
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+
+    lastX = pos.x;
+    lastY = pos.y;
+}
+
+/* =========================================================
+   UNTERSCHRIFT ENDE
+   ========================================================= */
+
+function stopDrawing(event) {
+    if (event) event.preventDefault();
+
+    drawing = false;
+
+    try {
+        if (event && event.pointerId !== undefined) {
+            canvas.releasePointerCapture(event.pointerId);
+        }
+    } catch (_) {}
+}
+
+/* =========================================================
+   POINTER EVENTS
+   ========================================================= */
+
+canvas.addEventListener("pointerdown", startDrawing, { passive: false });
+canvas.addEventListener("pointermove", draw, { passive: false });
+canvas.addEventListener("pointerup", stopDrawing, { passive: false });
+canvas.addEventListener("pointercancel", stopDrawing, { passive: false });
+
+/* =========================================================
+   UNTERSCHRIFT LÖSCHEN
+   ========================================================= */
+
+document.getElementById("clearSignature").addEventListener("click", function () {
+    const rect = canvas.getBoundingClientRect();
+
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    hasSignature = false;
+});
 
 /* =========================================================
    EMPFÄNGER
    ========================================================= */
 
-document
-    .querySelectorAll('input[name="recipientType"]')
-    .forEach(function (radio) {
+const otherPersonBox = document.getElementById("otherPersonBox");
+const otherPersonName = document.getElementById("otherPersonName");
 
-        radio.addEventListener("change", function () {
-
-            if (this.value === "other") {
-
-                otherPersonBox.style.display = "block";
-
-            } else {
-
-                otherPersonBox.style.display = "none";
-
-                otherPersonName.value = "";
-
-            }
-
-        });
-
+document.querySelectorAll('input[name="recipientType"]').forEach(function (radio) {
+    radio.addEventListener("change", function () {
+        if (this.value === "other") {
+            otherPersonBox.style.display = "block";
+            otherPersonName.required = true;
+        } else {
+            otherPersonBox.style.display = "none";
+            otherPersonName.required = false;
+            otherPersonName.value = "";
+        }
     });
+});
+
+/* =========================================================
+   MEHRERE PAKETE
+   ========================================================= */
+
+const packageList = document.getElementById("packageList");
+const addPackageButton = document.getElementById("addPackageButton");
+
+function getPackageInputs() {
+    return Array.from(packageList.querySelectorAll(".package-barcode"));
+}
+
+function getPackages() {
+    return getPackageInputs()
+        .map(function(input) { return input.value.trim(); })
+        .filter(function(code) { return code !== ""; });
+}
+
+function updatePackageRows() {
+    getPackageInputs().forEach(function(input, index) {
+        input.parentElement.querySelector(".package-number").textContent = (index + 1) + ".";
+        const remove = input.parentElement.querySelector(".remove-package");
+        remove.style.display = getPackageInputs().length > 1 ? "block" : "none";
+    });
+}
+
+function addPackageField(focusIt) {
+    const row = document.createElement("div");
+    row.className = "package-row";
+
+    const number = document.createElement("span");
+    number.className = "package-number";
+
+    const input = document.createElement("input");
+    input.className = "package-barcode";
+    input.type = "text";
+    input.autocomplete = "off";
+    input.placeholder = "Barcode scannen";
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "btn-danger remove-package";
+    remove.textContent = "×";
+    remove.addEventListener("click", function() {
+        row.remove();
+        updatePackageRows();
+    });
+
+    row.appendChild(number);
+    row.appendChild(input);
+    row.appendChild(remove);
+    packageList.appendChild(row);
+
+    input.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            if (input.value.trim()) {
+                addPackageField(true);
+            }
+        }
+    });
+
+    updatePackageRows();
+
+    if (focusIt) {
+        input.focus();
+    }
+
+    return input;
+}
+
+addPackageButton.addEventListener("click", function() {
+    addPackageField(true);
+});
+
+/* Scanner für das erste Feld: Enter erzeugt automatisch das nächste Feld. */
+getPackageInputs()[0].addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        if (this.value.trim()) {
+            addPackageField(true);
+        }
+    }
+});
+
+/* =========================================================
+   HILFSFUNKTIONEN
+   ========================================================= */
+
+function value(id) {
+    return document.getElementById(id).value.trim();
+}
+
+function selectedRecipient() {
+    return document.querySelector('input[name="recipientType"]:checked').value;
+}
+
+function showStatus(text) {
+    const status = document.getElementById("status");
+    status.textContent = text;
+    status.style.display = "block";
+}
 
 
 /* =========================================================
-   PAKET-FELDER
+   MEHRERE PAKETE
    ========================================================= */
 
-function getPackageInputs() {
+let packageCount = 0;
 
-    return Array.from(
-        document.querySelectorAll(".package-barcode")
-    );
+function addPackageField(focusField = true) {
+    packageCount++;
 
-}
+    const wrapper = document.createElement("div");
+    wrapper.className = "package-field";
 
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "package-input";
+    input.autocomplete = "off";
+    input.placeholder = "Barcode Paket " + packageCount + " scannen";
 
-function getPackages() {
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "package-remove";
+    remove.textContent = "✕";
+    remove.title = "Paket entfernen";
 
-    return getPackageInputs()
-
-        .map(function (input) {
-
-            return input.value.trim();
-
-        })
-
-        .filter(function (value) {
-
-            return value !== "";
-
-        });
-
-}
-
-
-function updatePackageNumbers() {
-
-    const rows =
-        document.querySelectorAll(".package-row");
-
-    rows.forEach(function (row, index) {
-
-        const number =
-            row.querySelector(".package-number");
-
-        if (number) {
-
-            number.textContent =
-                (index + 1) + ".";
-
-        }
-
-        const removeButton =
-            row.querySelector(".remove-package");
-
-        /*
-           Das erste Feld kann nicht gelöscht werden.
-           Alle weiteren Felder bekommen einen
-           Lösch-Button.
-        */
-
-        if (removeButton) {
-
-            if (index === 0) {
-
-                removeButton.style.display =
-                    "none";
-
-            } else {
-
-                removeButton.style.display =
-                    "block";
-
-            }
-
-        }
-
+    remove.addEventListener("click", function () {
+        wrapper.remove();
+        renumberPackageFields();
     });
 
-}
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
 
-
-function createPackageField(focusField = true) {
-
-    const row =
-        document.createElement("div");
-
-    row.className =
-        "package-row";
-
-
-    const number =
-        document.createElement("span");
-
-    number.className =
-        "package-number";
-
-
-    const input =
-        document.createElement("input");
-
-    input.type =
-        "text";
-
-    input.className =
-        "package-barcode";
-
-    input.autocomplete =
-        "off";
-
-    input.placeholder =
-        "Barcode scannen";
-
-
-    const remove =
-        document.createElement("button");
-
-    remove.type =
-        "button";
-
-    remove.className =
-        "btn-danger remove-package";
-
-    remove.textContent =
-        "×";
-
-    remove.title =
-        "Paket entfernen";
-
-
-    /*
-       Entfernen eines Paketfeldes.
-    */
-
-    remove.addEventListener(
-        "click",
-        function () {
-
-            row.remove();
-
-            updatePackageNumbers();
-
-        }
-    );
-
-
-    /*
-       Der Zebra-Scanner beendet einen Scan
-       normalerweise mit ENTER.
-
-       Wenn ein Barcode gescannt wurde und ENTER
-       kommt, wird automatisch ein weiteres Feld
-       angelegt.
-
-       Dadurch kann man direkt Paket für Paket
-       scannen.
-    */
-
-    input.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (
-                event.key === "Enter"
-                ||
-                event.keyCode === 13
-            ) {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-
-                if (
-                    input.value.trim() !== ""
-                ) {
-
-                    /*
-                       Neues Paketfeld anlegen.
-                    */
-
-                    createPackageField(true);
-
-                }
-
+            if (input.value.trim()) {
+                addPackageField(true);
             }
-
         }
-    );
+    });
 
+    wrapper.appendChild(input);
+    wrapper.appendChild(remove);
 
-    row.appendChild(number);
-
-    row.appendChild(input);
-
-    row.appendChild(remove);
-
-    packageList.appendChild(row);
-
-
-    updatePackageNumbers();
-
+    document.getElementById("packageFields").appendChild(wrapper);
 
     if (focusField) {
-
-        setTimeout(
-            function () {
-
-                input.focus();
-
-            },
-            50
-        );
-
+        setTimeout(function () {
+            input.focus();
+        }, 50);
     }
 
-
+    renumberPackageFields();
     return input;
-
 }
 
+function renumberPackageFields() {
+    const fields = document.querySelectorAll(".package-input");
 
-/*
-   Button "+ Weiteres Paket"
-*/
+    fields.forEach(function (field, index) {
+        field.placeholder = "Barcode Paket " + (index + 1) + " scannen";
+    });
+}
 
-addPackageButton.addEventListener(
+function getPackages() {
+    return Array.from(
+        document.querySelectorAll(".package-input")
+    )
+    .map(function (input) {
+        return input.value.trim();
+    })
+    .filter(Boolean);
+}
+
+document.getElementById("addPackageButton").addEventListener(
     "click",
     function () {
-
-        createPackageField(true);
-
+        addPackageField(true);
     }
 );
 
-
-/* =========================================================
-   ERSTES PAKET-FELD
-   ========================================================= */
-
-(function initialisePackageField() {
-
-    const firstInput =
-        document.querySelector(
-            ".package-barcode"
-        );
-
-    if (firstInput) {
-
-        firstInput.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (
-                    event.key === "Enter"
-                    ||
-                    event.keyCode === 13
-                ) {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-
-                    if (
-                        firstInput.value.trim() !== ""
-                    ) {
-
-                        createPackageField(true);
-
-                    }
-
-                }
-
-            }
-        );
-
-    }
-
-    updatePackageNumbers();
-
-})();
-
-
-/* =========================================================
-   TASTATUR SCHLIESSEN
-   ========================================================= */
-
-function closeKeyboard() {
-
-    const active =
-        document.activeElement;
-
-    if (
-        active &&
-        typeof active.blur === "function"
-    ) {
-
-        active.blur();
-
-    }
-
-}
-
-
-/* =========================================================
-   STATUSMELDUNG
-   ========================================================= */
-
-function showStatus(message) {
-
-    statusBox.textContent =
-        message;
-
-    statusBox.style.display =
-        "block";
-
-}
-
-
-function hideStatus() {
-
-    statusBox.style.display =
-        "none";
-
-}
-
-
-/* =========================================================
-   HTML SICHER AUSGEBEN
-   ========================================================= */
-
-function escapeHtml(value) {
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* =========================================================
-   EMPFÄNGER-TEXT
-   ========================================================= */
-
-function getRecipientText() {
-
-    const selected =
-        document.querySelector(
-            'input[name="recipientType"]:checked'
-        );
-
-
-    if (!selected) {
-
-        return "";
-
-    }
-
-
-    if (
-        selected.value === "other"
-    ) {
-
-        const name =
-            otherPersonName.value.trim();
-
-
-        if (!name) {
-
-            return "";
-
-        }
-
-
-        return (
-            "Andere anwesende Person: "
-            +
-            name
-        );
-
-    }
-
-
-    return "Empfänger selbst";
-
-}
-
-
-/* =========================================================
-   FORMULAR-DATEN
-   ========================================================= */
-
-function getFormData() {
-
-    return {
-
-        customerName:
-            customerName.value.trim(),
-
-        customerNumber:
-            customerNumber.value.trim(),
-
-        deliveryNumber:
-            deliveryNumber.value.trim(),
-
-        packages:
-            getPackages(),
-
-        recipient:
-            getRecipientText(),
-
-        notes:
-            notes.value.trim(),
-
-        signature:
-            signatureCanvas.toDataURL(
-                "image/png"
-            ),
-
-        date:
-            new Date().toLocaleString(
-                "de-DE"
-            )
-
-    };
-
-}
-
+addPackageField(false);
 
 /* =========================================================
    VALIDIERUNG
    ========================================================= */
 
 function validateForm() {
+    const customerName = value("customerName");
 
-    hideStatus();
-
-
-    if (
-        customerName.value.trim() === ""
-    ) {
-
-        alert(
-            "Bitte den Kundennamen eingeben."
-        );
-
-        customerName.focus();
-
+    if (!customerName) {
+        alert("Bitte den Kundennamen eingeben.");
+        document.getElementById("customerName").focus();
         return false;
-
     }
 
-
-    const packages =
-        getPackages();
-
-
-    if (
-        packages.length === 0
-    ) {
-
-        alert(
-            "Bitte mindestens ein Paket scannen."
-        );
-
-        const first =
-            document.querySelector(
-                ".package-barcode"
-            );
-
-        if (first) {
-
-            first.focus();
-
-        }
-
+    if (selectedRecipient() === "other" && !value("otherPersonName")) {
+        alert("Bitte den Namen der anwesenden Person eingeben.");
+        otherPersonName.focus();
         return false;
-
     }
 
-
-    const selected =
-        document.querySelector(
-            'input[name="recipientType"]:checked'
-        );
-
-
-    if (
-        selected &&
-        selected.value === "other"
-    ) {
-
-        if (
-            otherPersonName.value.trim() === ""
-        ) {
-
-            alert(
-                "Bitte den Namen der anwesenden Person eingeben."
-            );
-
-            otherPersonName.focus();
-
-            return false;
-
-        }
-
+    if (packages.length === 0) {
+        alert("Bitte mindestens ein Paket scannen.");
+        getPackageInputs()[0].focus();
+        return false;
     }
 
+    if (getPackages().length === 0) {
+        alert("Bitte mindestens ein Paket scannen.");
+        const firstPackage = document.querySelector(".package-input");
+        if (firstPackage) firstPackage.focus();
+        return false;
+    }
 
     if (!hasSignature) {
-
-        alert(
-            "Bitte zuerst unterschreiben."
-        );
-
-        signatureCanvas.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-
+        alert("Bitte zuerst unterschreiben.");
         return false;
-
     }
 
-
     return true;
-
 }
-
 
 /* =========================================================
    ZUSAMMENFASSUNG
    ========================================================= */
 
-function showSummary() {
+function createSummary() {
+    const customerName = value("customerName");
+    const customerNumber = value("customerNumber");
+    const deliveryNumber = value("deliveryNumber");
+    const packages = getPackages();
+    const notes = value("notes");
 
-    const data =
-        getFormData();
+    let recipientText;
 
+    if (selectedRecipient() === "recipient") {
+        recipientText = "Empfänger selbst";
+    } else {
+        recipientText = "Andere anwesende Person: " + value("otherPersonName");
+    }
 
-    let packageHtml = "";
+    const date = new Date().toLocaleString("de-DE");
 
+    document.getElementById("summary").innerHTML = `
+        <div><strong>Kunde:</strong> ${escapeHtml(customerName)}</div>
+        <div><strong>Kundennummer:</strong> ${escapeHtml(customerNumber || "-")}</div>
+        <div><strong>Lieferschein/Auftrag:</strong> ${escapeHtml(deliveryNumber || "-")}</div>
+        <div><strong>Pakete:</strong><br>${packages.length ? packages.map(function(code, index) { return (index + 1) + ". " + escapeHtml(code); }).join("<br>") : "-"}</div>
+        <div><strong>Empfang:</strong> ${escapeHtml(recipientText)}</div>
+        <div><strong>Bemerkung:</strong> ${escapeHtml(notes || "-")}</div>
+        <div><strong>Datum:</strong> ${escapeHtml(date)}</div>
+    `;
 
-    data.packages.forEach(
-        function (code, index) {
-
-            packageHtml +=
-
-                "<div>" +
-
-                "<strong>" +
-
-                (index + 1) +
-
-                ".</strong> " +
-
-                escapeHtml(code) +
-
-                "</div>";
-
-        }
-    );
-
-
-    summary.innerHTML =
-
-        "<div>" +
-
-        "<strong>Kunde:</strong> " +
-
-        escapeHtml(
-            data.customerName
-        ) +
-
-        "</div>" +
-
-
-        "<div>" +
-
-        "<strong>Kundennummer:</strong> " +
-
-        escapeHtml(
-            data.customerNumber ||
-            "-"
-        ) +
-
-        "</div>" +
-
-
-        "<div>" +
-
-        "<strong>Lieferschein / Auftrag:</strong> " +
-
-        escapeHtml(
-            data.deliveryNumber ||
-            "-"
-        ) +
-
-        "</div>" +
-
-
-        "<br>" +
-
-
-        "<div>" +
-
-        "<strong>Pakete:</strong>" +
-
-        "</div>" +
-
-        packageHtml +
-
-
-        "<br>" +
-
-
-        "<div>" +
-
-        "<strong>Empfang:</strong> " +
-
-        escapeHtml(
-            data.recipient
-        ) +
-
-        "</div>" +
-
-
-        "<div>" +
-
-        "<strong>Bemerkung:</strong> " +
-
-        escapeHtml(
-            data.notes ||
-            "-"
-        ) +
-
-        "</div>" +
-
-
-        "<div>" +
-
-        "<strong>Datum:</strong> " +
-
-        escapeHtml(
-            data.date
-        ) +
-
-        "</div>";
-
-
-    summaryCard.style.display =
-        "block";
-
-
-    summaryCard.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-
+    document.getElementById("summaryCard").style.display = "block";
 }
 
-
-/* =========================================================
-   ABSCHLUSS-BUTTON
-   ========================================================= */
-
-document
-    .getElementById("finishButton")
-    .addEventListener(
-        "click",
-        function () {
-
-            if (
-                !validateForm()
-            ) {
-
-                return;
-
-            }
-
-
-            closeKeyboard();
-
-            showSummary();
-
-        }
-    );
-      /* =========================================================
-   UNTERSCHRIFT
-   ========================================================= */
-
-/*
-   Wir verwenden hier exakt das Canvas aus Teil 1.
-   Die sichtbare Größe des Canvas wird berücksichtigt,
-   damit Finger/Stift und Linie an derselben Stelle liegen.
-*/
-
-const canvas =
-    signatureCanvas;
-
-const ctx =
-    signatureContext;
-
-let drawing = false;
-
-let lastX = 0;
-
-let lastY = 0;
-
-
-/* =========================================================
-   CANVAS EINRICHTEN
-   ========================================================= */
-
-function setupSignatureCanvas() {
-
-    const rect =
-        canvas.getBoundingClientRect();
-
-
-    /*
-       Interne Pixelgröße entspricht der sichtbaren
-       Größe des Canvas.
-
-       Dadurch bleibt die Position im Hoch- und
-       Querformat korrekt.
-    */
-
-    canvas.width =
-        Math.round(rect.width);
-
-    canvas.height =
-        Math.round(rect.height);
-
-
-    ctx.setTransform(
-        1,
-        0,
-        0,
-        1,
-        0,
-        0
-    );
-
-
-    ctx.lineWidth =
-        3;
-
-
-    ctx.lineCap =
-        "round";
-
-
-    ctx.lineJoin =
-        "round";
-
-
-    ctx.strokeStyle =
-        "#000000";
-
-
-    ctx.fillStyle =
-        "#000000";
-
+function escapeHtml(text) {
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
-
-
-/* =========================================================
-   CANVAS POSITION
-   ========================================================= */
-
-function getSignaturePosition(event) {
-
-    const rect =
-        canvas.getBoundingClientRect();
-
-
-    /*
-       Da Canvas-Breite und sichtbare Breite
-       übereinstimmen, wird die tatsächliche
-       Fingerposition sauber umgerechnet.
-    */
-
-    const scaleX =
-        canvas.width /
-        rect.width;
-
-
-    const scaleY =
-        canvas.height /
-        rect.height;
-
-
-    return {
-
-        x:
-            (
-                event.clientX -
-                rect.left
-            ) *
-            scaleX,
-
-        y:
-            (
-                event.clientY -
-                rect.top
-            ) *
-            scaleY
-
-    };
-
-}
-
-
-/* =========================================================
-   UNTERSCHRIFT START
-   ========================================================= */
-
-function startSignature(event) {
-
-    event.preventDefault();
-
-
-    drawing =
-        true;
-
-
-    hasSignature =
-        true;
-
-
-    const pos =
-        getSignaturePosition(
-            event
-        );
-
-
-    lastX =
-        pos.x;
-
-
-    lastY =
-        pos.y;
-
-
-    /*
-       Pointer Capture sorgt dafür,
-       dass der T51 die Bewegung weiter
-       an das Canvas liefert.
-    */
-
-    try {
-
-        canvas.setPointerCapture(
-            event.pointerId
-        );
-
-    }
-
-    catch (_) {}
-
-
-    /*
-       Startpunkt setzen.
-    */
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-        lastX,
-        lastY
-    );
-
-
-    /*
-       Kleiner Punkt auch bei einem
-       kurzen Antippen.
-    */
-
-    ctx.arc(
-        lastX,
-        lastY,
-        ctx.lineWidth / 2,
-        0,
-        Math.PI * 2
-    );
-
-
-    ctx.fill();
-
-}
-
-
-/* =========================================================
-   UNTERSCHRIFT ZEICHNEN
-   ========================================================= */
-
-function drawSignature(event) {
-
-    if (!drawing) {
-
-        return;
-
-    }
-
-
-    event.preventDefault();
-
-
-    const pos =
-        getSignaturePosition(
-            event
-        );
-
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-        lastX,
-        lastY
-    );
-
-
-    ctx.lineTo(
-        pos.x,
-        pos.y
-    );
-
-
-    ctx.stroke();
-
-
-    lastX =
-        pos.x;
-
-
-    lastY =
-        pos.y;
-
-}
-
-
-/* =========================================================
-   UNTERSCHRIFT ENDE
-   ========================================================= */
-
-function stopSignature(event) {
-
-    if (event) {
-
-        event.preventDefault();
-
-    }
-
-
-    drawing =
-        false;
-
-
-    try {
-
-        if (
-            event &&
-            event.pointerId !== undefined
-        ) {
-
-            canvas.releasePointerCapture(
-                event.pointerId
-            );
-
-        }
-
-    }
-
-    catch (_) {}
-
-}
-
-
-/* =========================================================
-   POINTER EVENTS
-   ========================================================= */
-
-canvas.addEventListener(
-    "pointerdown",
-    startSignature,
-    {
-        passive: false
-    }
-);
-
-
-canvas.addEventListener(
-    "pointermove",
-    drawSignature,
-    {
-        passive: false
-    }
-);
-
-
-canvas.addEventListener(
-    "pointerup",
-    stopSignature,
-    {
-        passive: false
-    }
-);
-
-
-canvas.addEventListener(
-    "pointercancel",
-    stopSignature,
-    {
-        passive: false
-    }
-);
-
-
-/* =========================================================
-   UNTERSCHRIFT LÖSCHEN
-   ========================================================= */
-
-document
-    .getElementById("clearSignature")
-    .addEventListener(
-        "click",
-        function () {
-
-            setupSignatureCanvas();
-
-
-            hasSignature =
-                false;
-
-        }
-    );
-
-
-/* =========================================================
-   ORIENTIERUNG / RESIZE
-   ========================================================= */
-
-/*
-   Ganz wichtig:
-
-   Wenn noch NICHT unterschrieben wurde,
-   darf sich die interne Canvas-Größe nach
-   dem Drehen an die neue Bildschirmgröße
-   anpassen.
-
-   Wenn bereits unterschrieben wurde,
-   wird das Canvas NICHT neu dimensioniert.
-
-   Dadurch wird die vorhandene Unterschrift
-   beim Drehen nicht plötzlich vergrößert.
-*/
-
-let signatureResizeTimer =
-    null;
-
-
-function handleSignatureResize() {
-
-    clearTimeout(
-        signatureResizeTimer
-    );
-
-
-    signatureResizeTimer =
-        setTimeout(
-            function () {
-
-                if (
-                    !hasSignature
-                ) {
-
-                    setupSignatureCanvas();
-
-                }
-
-            },
-            250
-        );
-
-}
-
-
-window.addEventListener(
-    "resize",
-    handleSignatureResize
-);
-
-
-window.addEventListener(
-    "orientationchange",
-    handleSignatureResize
-);
-
-
-/* =========================================================
-   START-CANVAS
-   ========================================================= */
-
-window.addEventListener(
-    "load",
-    function () {
-
-        setTimeout(
-            function () {
-
-                setupSignatureCanvas();
-
-            },
-            200
-        );
-
-    }
-);
-
-
-/* =========================================================
-   DOPPELTES SCROLLEN / ZOOMEN VERHINDERN
-   ========================================================= */
-
-canvas.addEventListener(
-    "touchstart",
-    function (event) {
-
-        event.preventDefault();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-canvas.addEventListener(
-    "touchmove",
-    function (event) {
-
-        event.preventDefault();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-canvas.addEventListener(
-    "touchend",
-    function (event) {
-
-        event.preventDefault();
-
-    },
-    {
-        passive: false
-    }
-);
-
 
 /* =========================================================
    ABSCHLUSS
    ========================================================= */
 
-function finishSignature() {
+document.getElementById("finishButton").addEventListener("click", function () {
+    if (!validateForm()) return;
 
-    if (
-        !hasSignature
-    ) {
+    createSummary();
 
-        alert(
-            "Bitte zuerst unterschreiben."
-        );
+    document.getElementById("summaryCard").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 
-        return false;
+    showStatus("Erfassung abgeschlossen.");
+});
 
-    }
-
-
-    return true;
-
-}
 /* =========================================================
    PDF
    ========================================================= */
 
 function buildPdf() {
+    if (!validateForm()) return null;
 
-    if (!validateForm()) {
+    const jsPDF = window.jspdf.jsPDF;
+    const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+    });
 
-        return null;
-
-    }
-
-
-    const jsPDF =
-        window.jspdf.jsPDF;
-
-
-    const pdf =
-        new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4"
-        });
-
-
-    const data =
-        getFormData();
-
-
-    const margin =
-        18;
-
-
-    let y =
-        22;
-
-
-    /* -----------------------------------------------------
-       TITEL
-       ----------------------------------------------------- */
+    const margin = 18;
+    let y = 22;
 
     pdf.setFontSize(20);
-
-    pdf.text(
-        "Kundenerfassung",
-        margin,
-        y
-    );
-
-
+    pdf.text("Kundenerfassung", margin, y);
     y += 12;
-
 
     pdf.setFontSize(11);
 
+    const customerName = value("customerName");
+    const customerNumber = value("customerNumber");
+    const deliveryNumber = value("deliveryNumber");
+    const packages = getPackages();
+    const notes = value("notes");
 
-    /* -----------------------------------------------------
-       KUNDENDATEN
-       ----------------------------------------------------- */
+    let recipientText;
+
+    if (selectedRecipient() === "recipient") {
+        recipientText = "Empfänger selbst";
+    } else {
+        recipientText = "Andere anwesende Person: " + value("otherPersonName");
+    }
+
+    const date = new Date().toLocaleString("de-DE");
 
     const lines = [
-
-        [
-            "Kunde",
-            data.customerName
-        ],
-
-        [
-            "Kundennummer",
-            data.customerNumber || "-"
-        ],
-
-        [
-            "Lieferschein / Auftrag",
-            data.deliveryNumber || "-"
-        ],
-
-        [
-            "Empfang",
-            data.recipient || "-"
-        ],
-
-        [
-            "Bemerkung",
-            data.notes || "-"
-        ],
-
-        [
-            "Datum",
-            data.date
-        ]
-
+        ["Kunde", customerName],
+        ["Kundennummer", customerNumber || "-"],
+        ["Lieferschein / Auftrag", deliveryNumber || "-"],
+        ["Pakete", packages.length ? packages.map(function(code, index) { return (index + 1) + ". " + code; }).join("\n") : "-"],
+        ["Empfang", recipientText],
+        ["Bemerkung", notes || "-"],
+        ["Datum", date]
     ];
 
+    lines.forEach(function(item) {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(item[0] + ":", margin, y);
 
-    lines.forEach(
-        function (item) {
+        pdf.setFont("helvetica", "normal");
 
-            pdf.setFont(
-                "helvetica",
-                "bold"
-            );
+        const wrapped = pdf.splitTextToSize(
+            item[1],
+            120
+        );
 
+        pdf.text(wrapped, margin + 45, y);
 
-            pdf.text(
-                item[0] + ":",
-                margin,
-                y
-            );
-
-
-            pdf.setFont(
-                "helvetica",
-                "normal"
-            );
-
-
-            const wrapped =
-                pdf.splitTextToSize(
-                    String(item[1]),
-                    120
-                );
-
-
-            pdf.text(
-                wrapped,
-                margin + 45,
-                y
-            );
-
-
-            y +=
-                Math.max(
-                    7,
-                    wrapped.length * 5 + 2
-                );
-
-        }
-    );
-
-
-    /* -----------------------------------------------------
-       PAKETE
-       ----------------------------------------------------- */
-
-    y += 5;
-
-
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-
-    pdf.text(
-        "Pakete:",
-        margin,
-        y
-    );
-
-
-    y += 7;
-
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-
-    data.packages.forEach(
-        function (code, index) {
-
-            const packageText =
-                (index + 1) +
-                ". " +
-                code;
-
-
-            const wrapped =
-                pdf.splitTextToSize(
-                    packageText,
-                    150
-                );
-
-
-            pdf.text(
-                wrapped,
-                margin + 5,
-                y
-            );
-
-
-            y +=
-                Math.max(
-                    6,
-                    wrapped.length * 5
-                );
-
-        }
-    );
-
-
-    /* -----------------------------------------------------
-       UNTERSCHRIFT
-       ----------------------------------------------------- */
+        y += Math.max(7, wrapped.length * 5 + 2);
+    });
 
     y += 8;
 
-
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-
-    pdf.text(
-        "Unterschrift:",
-        margin,
-        y
-    );
-
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Unterschrift:", margin, y);
 
     y += 5;
 
-
     /*
-       Die Unterschrift wird direkt aus dem
-       funktionierenden Canvas übernommen.
+       Die Signatur wird aus genau dem sichtbaren Canvas übernommen.
+       Dadurch wird sie im PDF nicht durch eine zusätzliche
+       Canvas-Skalierung verzerrt.
     */
+    const signatureImage = canvas.toDataURL("image/png");
 
-    const signatureImage =
-        canvas.toDataURL(
-            "image/png"
-        );
+    const maxWidth = 170;
+    const maxHeight = 55;
 
+    const ratio = canvas.width / canvas.height;
 
-    const ratio =
-        canvas.width /
-        canvas.height;
+    let imgWidth = maxWidth;
+    let imgHeight = imgWidth / ratio;
 
-
-    const maxWidth =
-        170;
-
-
-    const maxHeight =
-        55;
-
-
-    let imgWidth =
-        maxWidth;
-
-
-    let imgHeight =
-        imgWidth /
-        ratio;
-
-
-    if (
-        imgHeight >
-        maxHeight
-    ) {
-
-        imgHeight =
-            maxHeight;
-
-
-        imgWidth =
-            imgHeight *
-            ratio;
-
+    if (imgHeight > maxHeight) {
+        imgHeight = maxHeight;
+        imgWidth = imgHeight * ratio;
     }
-
-
-    /*
-       Falls die Unterschrift am unteren
-       Rand landen würde, neue Seite.
-    */
-
-    if (
-        y + imgHeight >
-        275
-    ) {
-
-        pdf.addPage();
-
-        y = 22;
-
-    }
-
 
     pdf.addImage(
         signatureImage,
@@ -1959,351 +938,159 @@ function buildPdf() {
         imgHeight
     );
 
+    y += imgHeight + 12;
 
-    y +=
-        imgHeight +
-        12;
-
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-
+    pdf.setFont("helvetica", "normal");
     pdf.setFontSize(9);
-
-
     pdf.text(
         "Elektronisch erfasste Unterschrift.",
         margin,
         y
     );
 
-
     return pdf;
-
 }
 
-
 /* =========================================================
-   PDF ERSTELLEN
+   PDF DOWNLOAD
    ========================================================= */
 
-document
-    .getElementById("pdfButton")
-    .addEventListener(
-        "click",
-        function () {
+document.getElementById("pdfButton").addEventListener("click", function () {
+    const pdf = buildPdf();
 
-            const pdf =
-                buildPdf();
+    if (!pdf) return;
 
+    const name = value("customerName")
+        .replace(/[^a-z0-9äöüß_-]+/gi, "_")
+        .replace(/^_+|_+$/g, "") || "Kunde";
 
-            if (!pdf) {
+    pdf.save("Kundenerfassung_" + name + ".pdf");
 
-                return;
-
-            }
-
-
-            const name =
-                customerName.value
-                    .trim()
-                    .replace(
-                        /[^a-z0-9äöüß_-]+/gi,
-                        "_"
-                    )
-                    .replace(
-                        /^_+|_+$/g,
-                        ""
-                    )
-                    ||
-                    "Kunde";
-
-
-            pdf.save(
-                "Kundenerfassung_" +
-                name +
-                ".pdf"
-            );
-
-
-            showStatus(
-                "PDF wurde erstellt."
-            );
-
-        }
-    );
-
+    showStatus("PDF wurde erstellt.");
+});
 
 /* =========================================================
    PDF TEILEN / E-MAIL
    ========================================================= */
 
-document
-    .getElementById("shareButton")
-    .addEventListener(
-        "click",
-        async function () {
+document.getElementById("shareButton").addEventListener("click", async function () {
+    const pdf = buildPdf();
 
-            const pdf =
-                buildPdf();
+    if (!pdf) return;
 
+    const name = value("customerName")
+        .replace(/[^a-z0-9äöüß_-]+/gi, "_")
+        .replace(/^_+|_+$/g, "") || "Kunde";
 
-            if (!pdf) {
+    const fileName = "Kundenerfassung_" + name + ".pdf";
 
+    const blob = pdf.output("blob");
+    const file = new File([blob], fileName, {
+        type: "application/pdf"
+    });
+
+    /*
+       Auf Android/Zebra bzw. modernen Browsern kann
+       navigator.share den PDF-Anhang an die Mail-App
+       oder andere Apps weitergeben.
+    */
+    if (
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare({ files: [file] })
+    ) {
+        try {
+            await navigator.share({
+                title: "Kundenerfassung",
+                text: "Kundenerfassung als PDF",
+                files: [file]
+            });
+
+            showStatus("PDF wurde zum Teilen übergeben.");
+            return;
+
+        } catch (error) {
+            if (error && error.name === "AbortError") {
                 return;
-
             }
-
-
-            const name =
-                customerName.value
-                    .trim()
-                    .replace(
-                        /[^a-z0-9äöüß_-]+/gi,
-                        "_"
-                    )
-                    .replace(
-                        /^_+|_+$/g,
-                        ""
-                    )
-                    ||
-                    "Kunde";
-
-
-            const fileName =
-                "Kundenerfassung_" +
-                name +
-                ".pdf";
-
-
-            const blob =
-                pdf.output(
-                    "blob"
-                );
-
-
-            const file =
-                new File(
-                    [blob],
-                    fileName,
-                    {
-                        type:
-                            "application/pdf"
-                    }
-                );
-
-
-            /*
-               Auf Android/Zebra kann das PDF
-               über die System-Teilen-Funktion
-               an eine Mail-App übergeben werden.
-            */
-
-            if (
-                navigator.share
-                &&
-                navigator.canShare
-                &&
-                navigator.canShare({
-                    files: [file]
-                })
-            ) {
-
-                try {
-
-                    await navigator.share({
-
-                        title:
-                            "Kundenerfassung",
-
-                        text:
-                            "Kundenerfassung als PDF",
-
-                        files:
-                            [file]
-
-                    });
-
-
-                    showStatus(
-                        "PDF wurde zum Teilen übergeben."
-                    );
-
-
-                    return;
-
-                }
-
-                catch (error) {
-
-                    if (
-                        error &&
-                        error.name ===
-                        "AbortError"
-                    ) {
-
-                        return;
-
-                    }
-
-                }
-
-            }
-
-
-            /*
-               Fallback, wenn der T51/Brows­er
-               keine Dateifreigabe unterstützt.
-            */
-
-            pdf.save(
-                fileName
-            );
-
-
-            showStatus(
-                "PDF wurde heruntergeladen. Bitte in der Mail-App als Anhang auswählen."
-            );
-
         }
-    );
+    }
 
+    /*
+       Fallback: PDF wird heruntergeladen.
+       Danach kann es manuell über die Mail-App
+       angehängt werden.
+    */
+    pdf.save(fileName);
+
+    showStatus(
+        "PDF wurde heruntergeladen. Bitte in der Mail-App als Anhang auswählen."
+    );
+});
 
 /* =========================================================
    NEUE ERFASSUNG
    ========================================================= */
 
-document
-    .getElementById("newButton")
-    .addEventListener(
-        "click",
-        function () {
-
-            /*
-               Kundendaten löschen
-            */
-
-            customerName.value =
-                "";
-
-            customerNumber.value =
-                "";
-
-            deliveryNumber.value =
-                "";
-
-            notes.value =
-                "";
-
-
-            /*
-               Paketfelder auf ein Feld
-               zurücksetzen.
-            */
-
-            packageList.innerHTML =
-                "";
-
-
-            createPackageField(
-                false
-            );
-
-
-            /*
-               Empfänger zurücksetzen.
-            */
-
-            document
-                .querySelector(
-                    'input[name="recipientType"][value="recipient"]'
-                )
-                .checked =
-                true;
-
-
-            otherPersonBox.style.display =
-                "none";
-
-
-            otherPersonName.value =
-                "";
-
-
-            /*
-               Unterschrift löschen.
-            */
-
-            setupSignatureCanvas();
-
-
-            hasSignature =
-                false;
-
-
-            /*
-               Zusammenfassung und Status
-               ausblenden.
-            */
-
-            summaryCard.style.display =
-                "none";
-
-
-            hideStatus();
-
-
-            /*
-               Zum Anfang scrollen.
-            */
-
-            window.scrollTo({
-
-                top: 0,
-
-                behavior: "smooth"
-
-            });
-
+document.getElementById("newButton").addEventListener("click", function () {
+    document.getElementById("customerName").value = "";
+    document.getElementById("customerNumber").value = "";
+    document.getElementById("deliveryNumber").value = "";
+    packageList.innerHTML = `
+        <div class="package-row">
+            <span class="package-number">1.</span>
+            <input class="package-barcode" type="text" autocomplete="off" placeholder="Barcode scannen">
+            <button type="button" class="btn-danger remove-package" style="display:none;">×</button>
+        </div>
+    `;
+    packageList.querySelector(".package-barcode").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            if (this.value.trim()) addPackageField(true);
         }
-    );
+    });
+    document.getElementById("notes").value = "";
+    otherPersonName.value = "";
 
+    document.querySelector(
+        'input[name="recipientType"][value="recipient"]'
+    ).checked = true;
+
+    otherPersonBox.style.display = "none";
+    otherPersonName.required = false;
+
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    hasSignature = false;
+
+    document.getElementById("summaryCard").style.display = "none";
+    document.getElementById("status").style.display = "none";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
 
 /* =========================================================
-   ABSCHLIESSENDER CHECK
+   START
    ========================================================= */
 
-window.addEventListener(
-    "load",
-    function () {
+window.addEventListener("load", function () {
+    setupCanvas();
+});
 
-        /*
-           Canvas erst einrichten,
-           wenn die Seite vollständig
-           dargestellt wurde.
-        */
-
-        setTimeout(
-            function () {
-
-                setupSignatureCanvas();
-
-            },
-            200
-        );
-
+window.addEventListener("resize", function () {
+    /*
+       Canvas nur neu dimensionieren, solange noch
+       keine Unterschrift vorhanden ist.
+    */
+    if (!hasSignature) {
+        setupCanvas();
     }
-);
-
-
-/* =========================================================
-   ENDE
-   ========================================================= */
-
+});
 </script>
 
 </body>
-</html>      
+</html>
