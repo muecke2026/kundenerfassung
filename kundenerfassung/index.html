@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
-
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
 
 <title>Kundenerfassung</title>
 
@@ -21,278 +19,123 @@ user-scalable=no">
     box-sizing: border-box;
 }
 
-html,
-body {
-
+html, body {
     margin: 0;
     padding: 0;
-
     width: 100%;
     min-height: 100%;
-
     font-family: Arial, sans-serif;
-
     background: #f2f4f7;
     color: #222;
-
 }
 
 body {
-
     padding-bottom: 30px;
-
 }
-
 
 header {
-
     background: #111827;
     color: white;
-
     text-align: center;
-
     padding: 20px 14px;
-
 }
-
 
 header h1 {
-
     margin: 0;
-
     font-size: 27px;
-
 }
-
 
 header p {
-
     margin: 7px 0 0;
-
     font-size: 16px;
-
 }
-
 
 .container {
-
     width: 100%;
-
     max-width: 850px;
-
     margin: auto;
-
     padding: 14px;
-
 }
-
 
 .card {
-
     background: white;
-
     border-radius: 15px;
-
     padding: 18px;
-
     margin-bottom: 15px;
-
-    box-shadow:
-    0 3px 12px rgba(0,0,0,.08);
-
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
 }
-
 
 .step {
-
     color: #2563eb;
-
     font-size: 18px;
-
     font-weight: bold;
-
     margin-bottom: 12px;
-
 }
-
 
 label {
-
     display: block;
-
     font-size: 20px;
-
     font-weight: bold;
-
     margin-bottom: 9px;
-
 }
-
 
 .choice {
-
     display: flex;
-
     align-items: center;
-
     gap: 12px;
-
     border: 2px solid #d1d5db;
-
     border-radius: 12px;
-
     padding: 15px;
-
     margin: 10px 0;
-
     font-size: 19px;
-
 }
-
 
 .choice input {
-
     width: 24px;
     height: 24px;
-
     margin: 0;
-
 }
-
 
 input[type="text"] {
-
     width: 100%;
-
     padding: 16px;
-
     border: 2px solid #cbd5e1;
-
     border-radius: 12px;
-
     font-size: 20px;
-
     background: white;
-
 }
-
 
 input[type="text"]:focus {
-
     outline: none;
-
     border-color: #2563eb;
-
 }
-
 
 .hidden {
-
     display: none;
-
 }
-
 
 .help {
-
     margin-top: 9px;
-
     color: #666;
-
     font-size: 15px;
-
     line-height: 1.4;
-
 }
 
 
-/* =====================================
-   PAKETE
-   ===================================== */
-
-.package-list {
-
-    margin-top: 15px;
-
-}
-
-
-.package-item {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 12px;
-
-    margin-bottom: 8px;
-
-    background: #f8fafc;
-
-    border: 1px solid #d1d5db;
-
-    border-radius: 10px;
-
-}
-
-
-.package-number {
-
-    font-weight: bold;
-
-    min-width: 28px;
-
-}
-
-
-.package-code {
-
-    flex: 1;
-
-    font-size: 17px;
-
-    word-break: break-all;
-
-}
-
-
-.remove-package {
-
-    width: auto;
-
-    margin: 0;
-
-    padding: 9px 12px;
-
-    background: #dc2626;
-
-    color: white;
-
-    font-size: 15px;
-
-}
-
-
-.add-package {
-
-    background: #0f766e;
-
-    color: white;
-
-}
-
-
-/* =====================================
+/* ================================
    UNTERSCHRIFT
-   ===================================== */
+   ================================ */
 
 #signatureCanvas {
 
     display: block;
 
     width: 100%;
+
+    /*
+       Gleiche Höhe in Hoch- und Querformat.
+       Dadurch wird beim Drehen nichts gestreckt.
+    */
 
     height: 280px;
 
@@ -309,147 +152,86 @@ input[type="text"]:focus {
     -webkit-user-select: none;
 
     -webkit-touch-callout: none;
-
 }
 
 
-/* =====================================
+/* ================================
    BUTTONS
-   ===================================== */
+   ================================ */
 
 button {
-
     width: 100%;
-
     border: none;
-
     border-radius: 12px;
-
     padding: 16px;
-
     margin-top: 10px;
-
     font-size: 19px;
-
     font-weight: bold;
-
 }
-
 
 .save {
-
     background: #16a34a;
-
     color: white;
-
 }
-
 
 .pdf {
-
     background: #2563eb;
-
     color: white;
-
 }
-
 
 .email {
-
     background: #7c3aed;
-
     color: white;
-
 }
-
 
 .clear {
-
     background: #6b7280;
-
     color: white;
-
 }
-
 
 .delete {
-
     background: #dc2626;
-
     color: white;
-
 }
-
 
 .success {
-
     display: none;
-
     background: #dcfce7;
-
     color: #166534;
-
     padding: 14px;
-
     border-radius: 12px;
-
     font-weight: bold;
-
     font-size: 18px;
-
     margin-bottom: 15px;
-
 }
-
 
 .record {
-
     border-top: 1px solid #ddd;
-
     padding: 16px 0;
-
 }
-
 
 .record:first-child {
-
     border-top: none;
-
 }
-
 
 .record div {
-
     font-size: 17px;
-
     margin: 6px 0;
-
 }
-
 
 .signature-image {
-
     width: 300px;
-
     max-width: 100%;
-
     border: 1px solid #ddd;
-
     border-radius: 8px;
-
 }
 
-
 .empty {
-
     color: #777;
-
     font-size: 16px;
-
 }
 
 </style>
-
 </head>
 
 
@@ -461,7 +243,7 @@ button {
 <h1>📱 Kundenerfassung</h1>
 
 <p>
-Empfang · Pakete · Unterschrift
+Empfang · Barcode · Unterschrift
 </p>
 
 </header>
@@ -479,16 +261,15 @@ class="success">
 </div>
 
 
-<!-- =====================================
+<!-- ================================
      EMPFÄNGER
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
 
 <div class="step">
 SCHRITT 1
 </div>
-
 
 <label>
 Wer hat die Sendung erhalten?
@@ -528,7 +309,6 @@ Eine andere anwesende Person
 id="otherPersonBox"
 class="hidden">
 
-
 <label
 for="otherPersonName">
 
@@ -536,22 +316,20 @@ Name der anwesenden Person
 
 </label>
 
-
 <input
 id="otherPersonName"
 type="text"
 placeholder="Name eingeben"
 autocomplete="off">
 
-
 </div>
 
 </div>
 
 
-<!-- =====================================
-     PAKETE
-     ===================================== -->
+<!-- ================================
+     BARCODE
+     ================================ -->
 
 <div class="card">
 
@@ -559,14 +337,9 @@ autocomplete="off">
 SCHRITT 2
 </div>
 
-
-<label
-for="barcode">
-
-Paket scannen
-
+<label for="barcode">
+Barcode
 </label>
-
 
 <input
 id="barcode"
@@ -574,38 +347,19 @@ type="text"
 placeholder="Barcode scannen..."
 autocomplete="off">
 
-
 <div class="help">
 
-Barcode des ersten Pakets scannen.
-Danach können weitere Pakete hinzugefügt werden.
+Scan-Taste am Zebra T51 drücken.
+Nach dem Scan wird die Tastatur geschlossen.
+
+</div>
 
 </div>
 
 
-<div
-id="packageList"
-class="package-list">
-
-</div>
-
-
-<button
-class="add-package"
-type="button"
-onclick="addPackage()">
-
-➕ Weiteres Paket scannen
-
-</button>
-
-
-</div>
-
-
-<!-- =====================================
+<!-- ================================
      UNTERSCHRIFT
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
 
@@ -613,16 +367,11 @@ onclick="addPackage()">
 SCHRITT 3
 </div>
 
-
 <label>
 Unterschrift
 </label>
 
-
-<canvas
-id="signatureCanvas">
-</canvas>
-
+<canvas id="signatureCanvas"></canvas>
 
 <button
 class="clear"
@@ -636,19 +385,18 @@ Unterschrift löschen
 </div>
 
 
-<!-- =====================================
+<!-- ================================
      AKTIONEN
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
-
 
 <button
 class="save"
 type="button"
 onclick="saveRecord()">
 
-✓ Empfang speichern
+✓ Vorgang speichern
 
 </button>
 
@@ -672,33 +420,26 @@ onclick="sendPDFByEmail()">
 
 </button>
 
-
 </div>
 
 
-<!-- =====================================
+<!-- ================================
      GESPEICHERTE VORGÄNGE
-     ===================================== -->
+     ================================ -->
 
 <div class="card">
 
 <div class="step">
-
 📋 Gespeicherte Vorgänge
-
 </div>
-
 
 <div id="records">
 
 <div class="empty">
-
 Noch keine Vorgänge gespeichert.
-
 </div>
 
 </div>
-
 
 <button
 class="delete"
@@ -717,7 +458,6 @@ Alle Vorgänge löschen
 
 <script>
 
-
 /* =====================================================
    ELEMENTE
    ===================================================== */
@@ -727,40 +467,18 @@ document.getElementById(
     "signatureCanvas"
 );
 
-
 const ctx =
 canvas.getContext(
     "2d"
 );
 
-
 let drawing = false;
-
 
 let hasSignature = false;
 
 
 /* =====================================================
-   PAKETE
-   ===================================================== */
-
-let packages = [];
-
-
-const barcode =
-document.getElementById(
-    "barcode"
-);
-
-
-const packageList =
-document.getElementById(
-    "packageList"
-);
-
-
-/* =====================================================
-   CANVAS
+   CANVAS EINRICHTEN
    ===================================================== */
 
 function setupCanvas() {
@@ -769,9 +487,13 @@ function setupCanvas() {
         canvas.getBoundingClientRect();
 
 
+    /*
+       Interne Canvas-Größe entspricht exakt
+       der sichtbaren CSS-Größe.
+    */
+
     canvas.width =
         Math.round(rect.width);
-
 
     canvas.height =
         Math.round(rect.height);
@@ -789,17 +511,18 @@ function setupCanvas() {
 
     ctx.lineWidth = 3;
 
-
     ctx.lineCap = "round";
 
-
     ctx.lineJoin = "round";
-
 
     ctx.strokeStyle = "#000";
 
 }
 
+
+/*
+   Nach dem vollständigen Laden einrichten.
+*/
 
 window.addEventListener(
     "load",
@@ -817,6 +540,17 @@ window.addEventListener(
 /* =====================================================
    ORIENTIERUNG
    ===================================================== */
+
+/*
+   WICHTIG:
+
+   Wenn noch NICHT unterschrieben wurde,
+   wird das Canvas nach einer Drehung neu
+   dimensioniert.
+
+   Eine vorhandene Unterschrift wird NICHT
+   automatisch skaliert.
+*/
 
 let resizeTimer = null;
 
@@ -858,7 +592,7 @@ window.addEventListener(
 
 
 /* =====================================================
-   TOUCH POSITION
+   POSITION – 1:1
    ===================================================== */
 
 function getPosition(event) {
@@ -866,6 +600,15 @@ function getPosition(event) {
     const rect =
         canvas.getBoundingClientRect();
 
+
+    /*
+       Skalierungsfaktor zwischen interner
+       Canvas-Größe und sichtbarer Größe.
+
+       Damit ist die Position auch dann
+       exakt, wenn Android/Zebra die Canvas
+       geringfügig anders darstellt.
+    */
 
     const scaleX =
         canvas.width /
@@ -895,7 +638,7 @@ function getPosition(event) {
 
 
 /* =====================================================
-   TASTATUR
+   TASTATUR SCHLIESSEN
    ===================================================== */
 
 function closeKeyboard() {
@@ -921,7 +664,6 @@ const otherPersonBox =
 document.getElementById(
     "otherPersonBox"
 );
-
 
 const otherPersonName =
 document.getElementById(
@@ -970,8 +712,14 @@ document
 
 
 /* =====================================================
-   BARCODE SCANNEN
+   BARCODE
    ===================================================== */
+
+const barcode =
+document.getElementById(
+    "barcode"
+);
+
 
 barcode.addEventListener(
     "keydown",
@@ -983,231 +731,12 @@ barcode.addEventListener(
 
             event.preventDefault();
 
-
-            const code =
-                barcode.value.trim();
-
-
-            if (code) {
-
-                addPackage(
-                    code
-                );
-
-            }
-
-
-            barcode.value = "";
-
-
             closeKeyboard();
 
         }
 
     }
 );
-
-
-/* =====================================================
-   PAKET HINZUFÜGEN
-   ===================================================== */
-
-function addPackage(
-    scannedCode
-) {
-
-    let code =
-        scannedCode;
-
-
-    if (
-        !code
-    ) {
-
-        code =
-            barcode.value.trim();
-
-    }
-
-
-    if (!code) {
-
-        barcode.focus();
-
-        return;
-
-    }
-
-
-    /*
-       Doppelte Paketnummer verhindern.
-    */
-
-    if (
-        packages.includes(
-            code
-        )
-    ) {
-
-        alert(
-            "Dieses Paket wurde bereits gescannt."
-        );
-
-        barcode.value = "";
-
-        barcode.focus();
-
-        return;
-
-    }
-
-
-    packages.push(
-        code
-    );
-
-
-    renderPackages();
-
-
-    barcode.value = "";
-
-
-    /*
-       Fokus wieder auf Barcode,
-       damit der nächste Scan direkt
-       erfolgen kann.
-    */
-
-    barcode.focus();
-
-}
-
-
-/* =====================================================
-   PAKETE ANZEIGEN
-   ===================================================== */
-
-function renderPackages() {
-
-    packageList.innerHTML = "";
-
-
-    packages.forEach(
-        function(code, index) {
-
-
-            const row =
-                document.createElement(
-                    "div"
-                );
-
-
-            row.className =
-                "package-item";
-
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-
-            number.className =
-                "package-number";
-
-
-            number.textContent =
-                (index + 1) + ".";
-
-
-            const codeDiv =
-                document.createElement(
-                    "div"
-                );
-
-
-            codeDiv.className =
-                "package-code";
-
-
-            codeDiv.textContent =
-                code;
-
-
-            const remove =
-                document.createElement(
-                    "button"
-                );
-
-
-            remove.type =
-                "button";
-
-
-            remove.className =
-                "remove-package";
-
-
-            remove.textContent =
-                "🗑️";
-
-
-            remove.onclick =
-                function() {
-
-                    removePackage(
-                        index
-                    );
-
-                };
-
-
-            row.appendChild(
-                number
-            );
-
-
-            row.appendChild(
-                codeDiv
-            );
-
-
-            row.appendChild(
-                remove
-            );
-
-
-            packageList.appendChild(
-                row
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   PAKET LÖSCHEN
-   ===================================================== */
-
-function removePackage(
-    index
-) {
-
-    packages.splice(
-        index,
-        1
-    );
-
-
-    renderPackages();
-
-
-    barcode.focus();
-
-}
 
 
 /* =====================================================
@@ -1218,12 +747,9 @@ function startDrawing(event) {
 
     event.preventDefault();
 
-
     closeKeyboard();
 
-
     drawing = true;
-
 
     hasSignature = true;
 
@@ -1298,7 +824,6 @@ function stopDrawing(event) {
 
     drawing = false;
 
-
     ctx.closePath();
 
 
@@ -1321,6 +846,10 @@ function stopDrawing(event) {
 
 }
 
+
+/* =====================================================
+   POINTER EVENTS
+   ===================================================== */
 
 canvas.addEventListener(
     "pointerdown",
@@ -1411,11 +940,9 @@ function getReceiverData() {
 
     return {
 
-        type:
-            type,
+        type: type,
 
-        name:
-            name
+        name: name
 
     };
 
@@ -1426,9 +953,7 @@ function getReceiverData() {
    HTML SICHER
    ===================================================== */
 
-function escapeHtml(
-    text
-) {
+function escapeHtml(text) {
 
     const div =
         document.createElement(
@@ -1455,6 +980,10 @@ function saveRecord() {
         getReceiverData();
 
 
+    const code =
+        barcode.value.trim();
+
+
     if (
         receiver.type ===
         "Andere anwesende Person"
@@ -1473,12 +1002,10 @@ function saveRecord() {
     }
 
 
-    if (
-        packages.length === 0
-    ) {
+    if (!code) {
 
         alert(
-            "Bitte mindestens ein Paket scannen."
+            "Bitte zuerst den Barcode scannen."
         );
 
         barcode.focus();
@@ -1491,7 +1018,7 @@ function saveRecord() {
     if (!hasSignature) {
 
         alert(
-            "Bitte den Empfang unterschreiben lassen."
+            "Bitte zuerst unterschreiben."
         );
 
         return;
@@ -1507,8 +1034,8 @@ function saveRecord() {
         receiverName:
             receiver.name,
 
-        packages:
-            [...packages],
+        barcode:
+            code,
 
         date:
             new Date()
@@ -1550,24 +1077,11 @@ function saveRecord() {
     loadRecords();
 
 
-    /*
-       Neue Erfassung vorbereiten.
-    */
-
-    packages = [];
-
-
-    renderPackages();
-
-
     barcode.value = "";
-
 
     otherPersonName.value = "";
 
-
     clearSignature();
-
 
     closeKeyboard();
 
@@ -1608,7 +1122,7 @@ function saveRecord() {
 
 
 /* =====================================================
-   GESPEICHERTE VORGÄNGE
+   VORGÄNGE LADEN
    ===================================================== */
 
 function loadRecords() {
@@ -1696,29 +1210,18 @@ function loadRecords() {
 
 
             html +=
-                "<div><strong>Pakete:</strong></div>";
 
+                "<div><strong>Barcode:</strong> "
 
-            record.packages
-                .forEach(
-                    function(code, index) {
+                +
 
-                        html +=
+                escapeHtml(
+                    record.barcode
+                )
 
-                            "<div>" +
+                +
 
-                            (index + 1) +
-
-                            ". " +
-
-                            escapeHtml(
-                                code
-                            ) +
-
-                            "</div>";
-
-                    }
-                );
+                "</div>";
 
 
             html +=
@@ -1787,6 +1290,10 @@ function buildPDF() {
         getReceiverData();
 
 
+    const code =
+        barcode.value.trim();
+
+
     if (
         receiver.type ===
         "Andere anwesende Person"
@@ -1803,12 +1310,10 @@ function buildPDF() {
     }
 
 
-    if (
-        packages.length === 0
-    ) {
+    if (!code) {
 
         alert(
-            "Bitte mindestens ein Paket scannen."
+            "Bitte zuerst den Barcode scannen."
         );
 
         return null;
@@ -1840,10 +1345,7 @@ function buildPDF() {
     let y = 22;
 
 
-    pdf.setFontSize(
-        20
-    );
-
+    pdf.setFontSize(20);
 
     pdf.text(
         "Kundenerfassung",
@@ -1855,161 +1357,81 @@ function buildPDF() {
     y += 14;
 
 
-    pdf.setFontSize(
-        11
-    );
+    pdf.setFontSize(11);
 
 
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
+    const rows = [
 
+        [
+            "Empfangen von",
+            receiver.type
+        ]
 
-    pdf.text(
-        "Empfangen von:",
-        margin,
-        y
-    );
-
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-
-    pdf.text(
-        receiver.type,
-        margin + 45,
-        y
-    );
-
-
-    y += 8;
+    ];
 
 
     if (
         receiver.name
     ) {
 
-        pdf.setFont(
-            "helvetica",
-            "bold"
-        );
-
-
-        pdf.text(
-            "Name:",
-            margin,
-            y
-        );
-
-
-        pdf.setFont(
-            "helvetica",
-            "normal"
-        );
-
-
-        pdf.text(
-            receiver.name,
-            margin + 45,
-            y
-        );
-
-
-        y += 8;
+        rows.push([
+            "Name",
+            receiver.name
+        ]);
 
     }
 
 
-    pdf.setFont(
-        "helvetica",
-        "bold"
+    rows.push(
+
+        [
+            "Barcode",
+            code
+        ],
+
+        [
+            "Datum / Uhrzeit",
+            new Date()
+            .toLocaleString(
+                "de-DE"
+            )
+        ]
+
     );
 
 
-    pdf.text(
-        "Pakete:",
-        margin,
-        y
-    );
+    rows.forEach(
+        function(row) {
 
-
-    y += 7;
-
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-
-    packages.forEach(
-        function(code, index) {
-
-            const lines =
-                pdf.splitTextToSize(
-                    (
-                        index + 1
-                    ) +
-                    ". " +
-                    code,
-                    150
-                );
-
+            pdf.setFont(
+                "helvetica",
+                "bold"
+            );
 
             pdf.text(
-                lines,
-                margin + 5,
+                row[0] + ":",
+                margin,
                 y
             );
 
+            pdf.setFont(
+                "helvetica",
+                "normal"
+            );
 
-            y +=
-                Math.max(
-                    6,
-                    lines.length * 5
-                );
+            pdf.text(
+                row[1],
+                margin + 45,
+                y
+            );
+
+            y += 8;
 
         }
     );
 
 
-    y += 6;
-
-
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-
-    pdf.text(
-        "Datum / Uhrzeit:",
-        margin,
-        y
-    );
-
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-
-    pdf.text(
-        new Date()
-        .toLocaleString(
-            "de-DE"
-        ),
-        margin + 45,
-        y
-    );
-
-
-    y += 15;
+    y += 10;
 
 
     pdf.setFont(
@@ -2041,7 +1463,6 @@ function buildPDF() {
 
     let width = 170;
 
-
     let height =
         width /
         ratio;
@@ -2052,7 +1473,6 @@ function buildPDF() {
     ) {
 
         height = 60;
-
 
         width =
             height *
@@ -2073,28 +1493,19 @@ function buildPDF() {
 
     const filename =
         "Kundenerfassung_" +
-
         new Date()
         .toISOString()
-        .slice(
-            0,
-            10
-        )
-
+        .slice(0,10)
         +
-
         ".pdf";
 
 
     return {
 
-        pdf:
-            pdf,
+        pdf: pdf,
 
         blob:
-            pdf.output(
-                "blob"
-            ),
+            pdf.output("blob"),
 
         filename:
             filename
@@ -2147,26 +1558,23 @@ async function sendPDFByEmail() {
 
     const file =
         new File(
-
-            [
-                result.blob
-            ],
-
+            [result.blob],
             result.filename,
-
             {
                 type:
                     "application/pdf"
             }
-
         );
 
 
+    /*
+       Das echte PDF wird an die
+       Android-Teilen-Funktion übergeben.
+    */
+
     if (
-        navigator.share
-        &&
-        navigator.canShare
-        &&
+        navigator.share &&
+        navigator.canShare &&
         navigator.canShare({
             files: [file]
         })
@@ -2185,8 +1593,7 @@ async function sendPDFByEmail() {
                 files:
                     [file]
 
-            );
-
+            });
 
             return;
 
@@ -2195,7 +1602,6 @@ async function sendPDFByEmail() {
         catch (error) {
 
             if (
-                error &&
                 error.name ===
                 "AbortError"
             ) {
@@ -2208,6 +1614,12 @@ async function sendPDFByEmail() {
 
     }
 
+
+    /*
+       Falls der Browser keine
+       Dateifreigabe unterstützt:
+       PDF speichern.
+    */
 
     result.pdf.save(
         result.filename
@@ -2260,7 +1672,6 @@ function deleteAllRecords() {
             "zebraRecords"
         );
 
-
         loadRecords();
 
     }
@@ -2274,9 +1685,7 @@ function deleteAllRecords() {
 
 loadRecords();
 
-
 </script>
 
 </body>
-
 </html>
