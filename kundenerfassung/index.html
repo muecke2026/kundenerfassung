@@ -360,18 +360,12 @@ button {
 
         <div class="button-row">
             <button type="button" class="btn-primary" id="pdfButton">PDF erstellen</button>
-            <button type="button" class="btn-primary" id="shareButton">PDF teilen / E-Mail</button>
+            <button type="button" class="btn-success" id="savePdfButton">PDF speichern</button>
         </div>
 
         <button type="button" class="btn-secondary full" id="newButton">
             Neue Erfassung
         </button>
-
-        <p class="small">
-            Hinweis: Eine normale HTML-Seite kann einen PDF-Anhang nicht direkt
-            an ein beliebiges E-Mail-Programm anhängen. Die Teilen-Funktion nutzt
-            auf Geräten, die dies unterstützen, die Systemfunktion des T51.
-        </p>
     </section>
 
 </main>
@@ -965,81 +959,76 @@ function buildPdf() {
 }
 
 /* =========================================================
-   PDF DOWNLOAD
+   PDF ERSTELLEN / SPEICHERN
    ========================================================= */
+
+let generatedPdf = null;
+let generatedPdfFileName = "Kundenerfassung.pdf";
+
+
+function getPdfFileName() {
+
+    const name = value("customerName")
+        .replace(/[^a-z0-9äöüß_-]+/gi, "_")
+        .replace(/^_+|_+$/g, "")
+        || "Kunde";
+
+    return "Kundenerfassung_" + name + ".pdf";
+}
+
+
+/*
+   PDF erstellen:
+   Das PDF wird erzeugt und im Speicher bereitgehalten.
+   Es wird hier noch NICHT gedruckt und NICHT gespeichert.
+*/
 
 document.getElementById("pdfButton").addEventListener("click", function () {
+
     const pdf = buildPdf();
 
     if (!pdf) return;
 
-    const name = value("customerName")
-        .replace(/[^a-z0-9äöüß_-]+/gi, "_")
-        .replace(/^_+|_+$/g, "") || "Kunde";
-
-    pdf.save("Kundenerfassung_" + name + ".pdf");
-
-    showStatus("PDF wurde erstellt.");
-});
-
-/* =========================================================
-   PDF TEILEN / E-MAIL
-   ========================================================= */
-
-document.getElementById("shareButton").addEventListener("click", async function () {
-    const pdf = buildPdf();
-
-    if (!pdf) return;
-
-    const name = value("customerName")
-        .replace(/[^a-z0-9äöüß_-]+/gi, "_")
-        .replace(/^_+|_+$/g, "") || "Kunde";
-
-    const fileName = "Kundenerfassung_" + name + ".pdf";
-
-    const blob = pdf.output("blob");
-    const file = new File([blob], fileName, {
-        type: "application/pdf"
-    });
-
-    /*
-       Auf Android/Zebra bzw. modernen Browsern kann
-       navigator.share den PDF-Anhang an die Mail-App
-       oder andere Apps weitergeben.
-    */
-    if (
-        navigator.share &&
-        navigator.canShare &&
-        navigator.canShare({ files: [file] })
-    ) {
-        try {
-            await navigator.share({
-                title: "Kundenerfassung",
-                text: "Kundenerfassung als PDF",
-                files: [file]
-            });
-
-            showStatus("PDF wurde zum Teilen übergeben.");
-            return;
-
-        } catch (error) {
-            if (error && error.name === "AbortError") {
-                return;
-            }
-        }
-    }
-
-    /*
-       Fallback: PDF wird heruntergeladen.
-       Danach kann es manuell über die Mail-App
-       angehängt werden.
-    */
-    pdf.save(fileName);
+    generatedPdf = pdf;
+    generatedPdfFileName = getPdfFileName();
 
     showStatus(
-        "PDF wurde heruntergeladen. Bitte in der Mail-App als Anhang auswählen."
+        "PDF wurde erstellt. Jetzt auf „PDF speichern“ tippen."
     );
+
 });
+
+
+/*
+   PDF speichern:
+   Speichert das zuvor erstellte PDF.
+   Falls noch kein PDF erstellt wurde, wird es automatisch
+   vorher erstellt.
+*/
+
+document.getElementById("savePdfButton").addEventListener("click", function () {
+
+    if (!generatedPdf) {
+
+        const pdf = buildPdf();
+
+        if (!pdf) return;
+
+        generatedPdf = pdf;
+        generatedPdfFileName = getPdfFileName();
+
+    }
+
+    generatedPdf.save(
+        generatedPdfFileName
+    );
+
+    showStatus(
+        "PDF wurde gespeichert."
+    );
+
+});
+
 
 /* =========================================================
    NEUE ERFASSUNG
@@ -1077,6 +1066,9 @@ document.getElementById("newButton").addEventListener("click", function () {
 
     hasSignature = false;
     signatureBaseWidth = 0;
+
+    generatedPdf = null;
+    generatedPdfFileName = "Kundenerfassung.pdf";
 
     document.getElementById("summaryCard").style.display = "none";
     document.getElementById("status").style.display = "none";
