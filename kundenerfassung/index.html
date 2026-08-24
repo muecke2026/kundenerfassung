@@ -337,7 +337,7 @@ button {
         <h2>3. Unterschrift</h2>
 
         <div class="signature-wrap">
-            <canvas id="signatureCanvas" tabindex="-1"></canvas>
+            <canvas id="signatureCanvas"></canvas>
         </div>
 
         <p class="signature-hint">
@@ -352,6 +352,10 @@ button {
 
         <button type="button" class="btn-primary full" id="pdfSaveButton">
             PDF erstellen &amp; speichern
+        </button>
+
+        <button type="button" class="btn-secondary full" id="newButton">
+            Neue Erfassung
         </button>
 
         <div id="status" class="status"></div>
@@ -375,39 +379,27 @@ let drawing = false;
 let hasSignature = false;
 let lastX = 0;
 let lastY = 0;
-let signatureBaseWidth = 0;
 
 /* =========================================================
-   CANVAS – EXAKTE DARSTELLUNG
+   CANVAS – STABIL IM HOCH-/QUERFORMAT
    ========================================================= */
+
+let signatureContentWidth = 0;
+let signatureContentHeight = 0;
 
 function setupCanvas(preserveSignature = false) {
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
 
-    /*
-       Bei einer Drehung darf die bereits vorhandene Unterschrift
-       NICHT mit der neuen Breite des Canvas mitgestreckt werden.
-
-       Deshalb sichern wir die aktuelle Zeichnung und übernehmen
-       sie nach dem Neusetzen des Canvas in derselben logischen
-       Größe. Die Höhe des Unterschriftenfeldes bleibt konstant.
-    */
     let oldImage = null;
-    let oldCssWidth = 0;
-    let oldCssHeight = 0;
+    let oldImageWidth = 0;
+    let oldImageHeight = 0;
 
-    if (preserveSignature && hasSignature) {
-        oldCssWidth = canvas.clientWidth;
-        oldCssHeight = canvas.clientHeight;
-
+    if (preserveSignature && hasSignature && canvas.width && canvas.height) {
         try {
-            oldImage = ctx.getImageData(
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
+            oldImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            oldImageWidth = canvas.width;
+            oldImageHeight = canvas.height;
         } catch (_) {
             oldImage = null;
         }
@@ -417,39 +409,30 @@ function setupCanvas(preserveSignature = false) {
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.strokeStyle = "#000000";
     ctx.fillStyle = "#000000";
 
-    /*
-       Die vorhandene Unterschrift wird bei Rotation nicht
-       auf die neue Breite des Feldes gestreckt.
-       Sie bleibt links in ihrer bisherigen logischen Größe.
-    */
     if (oldImage) {
         const temp = document.createElement("canvas");
-        temp.width = oldImage.width;
-        temp.height = oldImage.height;
-
+        temp.width = oldImageWidth;
+        temp.height = oldImageHeight;
         const tempCtx = temp.getContext("2d");
         tempCtx.putImageData(oldImage, 0, 0);
 
-        const logicalWidth = signatureBaseWidth || oldCssWidth || rect.width;
-        const logicalHeight = rect.height;
-
         /*
-           1:1 in CSS-Pixeln, ohne horizontale Streckung.
+           Die alte Unterschrift wird in ihrer bisherigen CSS-Größe
+           zurückgesetzt. Sie wird NICHT auf die neue Querformatbreite
+           gestreckt. Nur die leere Fläche des Canvas wird breiter.
         */
-        const drawWidth = Math.min(
-            logicalWidth,
+        const targetWidth = Math.min(
+            signatureContentWidth || (oldImageWidth / dpr),
             rect.width
         );
-
-        const drawHeight = Math.min(
-            logicalHeight,
+        const targetHeight = Math.min(
+            signatureContentHeight || (oldImageHeight / dpr),
             rect.height
         );
 
@@ -457,19 +440,15 @@ function setupCanvas(preserveSignature = false) {
             temp,
             0,
             0,
-            temp.width,
-            temp.height,
+            oldImageWidth,
+            oldImageHeight,
             0,
             0,
-            drawWidth,
-            drawHeight
+            targetWidth,
+            targetHeight
         );
     }
 }
-
-/* =========================================================
-   POSITION
-   ========================================================= */
 
 function getPosition(event) {
     const rect = canvas.getBoundingClientRect();
@@ -481,60 +460,40 @@ function getPosition(event) {
 }
 
 /* =========================================================
-   UNTERSCHRIFT START
+   TASTATUR SCHLIESSEN – OHNE CANVAS ZU VERÄNDERN
    ========================================================= */
 
 function closeKeyboard() {
     const active = document.activeElement;
 
     if (active && typeof active.blur === "function") {
-        try {
-            if (active.tagName === "INPUT" || active.tagName === "TEXTAREA") {
-                active.setAttribute("readonly", "readonly");
-            }
-        } catch (_) {}
-
         active.blur();
-
-        setTimeout(function () {
-            try {
-                active.removeAttribute("readonly");
-            } catch (_) {}
-        }, 150);
     }
 
-    /*
-       Der T51/Android 7 kann die Tastatur nach blur() manchmal
-       einen Moment länger offen lassen. Deshalb noch einmal
-       nach kurzer Verzögerung den Fokus entfernen.
-    */
+    /* Android 7 / T51: zweiter blur nach kurzer Verzögerung */
     setTimeout(function () {
         const current = document.activeElement;
-
-        if (
-            current &&
-            current !== document.body &&
-            typeof current.blur === "function"
-        ) {
+        if (current && typeof current.blur === "function") {
             current.blur();
         }
-
-        try {
-            canvas.focus({ preventScroll: true });
-            canvas.blur();
-        } catch (_) {}
     }, 80);
 }
 
+/* =========================================================
+   UNTERSCHRIFT START
+   ========================================================= */
+
 function startDrawing(event) {
     event.preventDefault();
+
     closeKeyboard();
 
     drawing = true;
     hasSignature = true;
 
-    if (!signatureBaseWidth) {
-        signatureBaseWidth = canvas.clientWidth;
+    if (!signatureContentWidth) {
+        signatureContentWidth = canvas.clientWidth;
+        signatureContentHeight = canvas.clientHeight;
     }
 
     const pos = getPosition(event);
@@ -548,8 +507,6 @@ function startDrawing(event) {
 
     ctx.beginPath();
     ctx.moveTo(lastX, lastY);
-
-    /* Kleiner Punkt auch bei kurzem Antippen */
     ctx.arc(lastX, lastY, ctx.lineWidth / 2, 0, Math.PI * 2);
     ctx.fillStyle = "#000000";
     ctx.fill();
@@ -595,10 +552,6 @@ function stopDrawing(event) {
    POINTER EVENTS
    ========================================================= */
 
-canvas.addEventListener("pointerdown", function () {
-    closeKeyboard();
-}, { passive: true });
-
 canvas.addEventListener("pointerdown", startDrawing, { passive: false });
 canvas.addEventListener("pointermove", draw, { passive: false });
 canvas.addEventListener("pointerup", stopDrawing, { passive: false });
@@ -614,6 +567,8 @@ document.getElementById("clearSignature").addEventListener("click", function () 
     ctx.clearRect(0, 0, rect.width, rect.height);
 
     hasSignature = false;
+    signatureContentWidth = 0;
+    signatureContentHeight = 0;
 });
 
 /* =========================================================
@@ -689,10 +644,8 @@ function addPackageField(focusIt) {
     packageList.appendChild(row);
 
     input.addEventListener("keydown", function(event) {
-        if (event.key === "Enter" || event.keyCode === 13) {
+        if (event.key === "Enter") {
             event.preventDefault();
-            event.stopPropagation();
-
             if (input.value.trim()) {
                 addPackageField(true);
             }
@@ -708,18 +661,19 @@ function addPackageField(focusIt) {
     return input;
 }
 
-addPackageButton.addEventListener("click", function(event) {
-    event.preventDefault();
-
-    const active = document.activeElement;
-    if (active && active.classList && active.classList.contains("package-barcode")) {
-        active.blur();
-    }
-
+addPackageButton.addEventListener("click", function() {
     addPackageField(true);
 });
 
-/* Jedes Paketfeld erhält seine Scanner-Enter-Logik direkt beim Erstellen. */
+/* Scanner für das erste Feld: Enter erzeugt automatisch das nächste Feld. */
+getPackageInputs()[0].addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        if (this.value.trim()) {
+            addPackageField(true);
+        }
+    }
+});
 
 /* =========================================================
    HILFSFUNKTIONEN
@@ -762,8 +716,7 @@ function validateForm() {
 
     if (packages.length === 0) {
         alert("Bitte mindestens ein Paket scannen.");
-        const firstPackage = getPackageInputs()[0];
-        if (firstPackage) firstPackage.focus();
+        getPackageInputs()[0].focus();
         return false;
     }
 
@@ -946,44 +899,20 @@ function buildPdf() {
    PDF ERSTELLEN & SPEICHERN
    ========================================================= */
 
-let generatedPdf = null;
-let generatedPdfFileName = "Kundenerfassung.pdf";
-
-function getPdfFileName() {
+document.getElementById("pdfSaveButton").addEventListener("click", function () {
+    const pdf = buildPdf();
+    if (!pdf) return;
 
     const name = value("customerName")
         .replace(/[^a-z0-9äöüß_-]+/gi, "_")
-        .replace(/^_+|_+$/g, "")
-        || "Kunde";
+        .replace(/^_+|_+$/g, "") || "Kunde";
 
-    return "Kundenerfassung_" + name + ".pdf";
-}
+    const fileName = "Kundenerfassung_" + name + ".pdf";
 
+    pdf.save(fileName);
 
-/*
-   EIN Button:
-   PDF erzeugen und unmittelbar speichern.
-*/
-
-document.getElementById("pdfSaveButton").addEventListener("click", function () {
-
-    const pdf = buildPdf();
-
-    if (!pdf) {
-        return;
-    }
-
-    generatedPdf = pdf;
-    generatedPdfFileName = getPdfFileName();
-
-    pdf.save(generatedPdfFileName);
-
-    showStatus(
-        "PDF wurde erstellt und gespeichert."
-    );
-
+    showStatus("PDF wurde erstellt und gespeichert.");
 });
-
 
 /* =========================================================
    NEUE ERFASSUNG
@@ -1020,11 +949,8 @@ document.getElementById("newButton").addEventListener("click", function () {
     ctx.clearRect(0, 0, rect.width, rect.height);
 
     hasSignature = false;
-    signatureBaseWidth = 0;
-
-    generatedPdf = null;
-    generatedPdfFileName = "Kundenerfassung.pdf";
-
+    signatureContentWidth = 0;
+    signatureContentHeight = 0;
     document.getElementById("status").style.display = "none";
 
     window.scrollTo({
@@ -1038,13 +964,17 @@ document.getElementById("newButton").addEventListener("click", function () {
    ========================================================= */
 
 window.addEventListener("load", function () {
-    setupCanvas();
+    setTimeout(function () {
+        setupCanvas(false);
+    }, 150);
 });
 
 let resizeTimer = null;
 
 window.addEventListener("orientationchange", function () {
-    setTimeout(function () {
+    clearTimeout(resizeTimer);
+
+    resizeTimer = setTimeout(function () {
         setupCanvas(hasSignature);
     }, 250);
 });
@@ -1053,11 +983,6 @@ window.addEventListener("resize", function () {
     clearTimeout(resizeTimer);
 
     resizeTimer = setTimeout(function () {
-        /*
-           Auch nach einer Drehung wird das Canvas neu an
-           die Bildschirmgröße angepasst, aber die vorhandene
-           Unterschrift wird nicht horizontal vergrößert.
-        */
         setupCanvas(hasSignature);
     }, 150);
 });
