@@ -4,108 +4,111 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
 
 <title>Kundenerfassung</title>
 
 <style>
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f2f4f7;
-  color: #222;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f4f7;
+    color: #222;
 }
 
 header {
-  background: #111827;
-  color: white;
-  text-align: center;
-  padding: 22px 14px;
+    background: #111827;
+    color: white;
+    text-align: center;
+    padding: 22px 14px;
 }
 
 header h1 {
-  margin: 0;
-  font-size: 28px;
+    margin: 0;
+    font-size: 28px;
 }
 
 header p {
-  margin: 7px 0 0;
-  font-size: 17px;
+    margin: 7px 0 0;
+    font-size: 17px;
 }
 
 .container {
-  max-width: 800px;
-  margin: auto;
-  padding: 14px;
+    max-width: 800px;
+    margin: auto;
+    padding: 14px;
 }
 
 .card {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
 }
 
 .step {
-  color: #2563eb;
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 12px;
+    color: #2563eb;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
 }
 
-label.title {
-  display: block;
-  font-size: 21px;
-  font-weight: bold;
-  margin-bottom: 10px;
+label {
+    display: block;
+    font-size: 21px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .choice {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border: 2px solid #d1d5db;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 10px 0;
-  font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 10px 0;
+    font-size: 20px;
 }
 
 .choice input {
-  width: 24px;
-  height: 24px;
-  margin: 0;
+    width: 24px;
+    height: 24px;
+    margin: 0;
 }
 
 input[type="text"] {
-  width: 100%;
-  padding: 17px;
-  border: 2px solid #cbd5e1;
-  border-radius: 12px;
-  font-size: 21px;
-  background: white;
+    width: 100%;
+    padding: 17px;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 21px;
+    background: white;
 }
 
 input[type="text"]:focus {
-  outline: none;
-  border-color: #2563eb;
+    outline: none;
+    border-color: #2563eb;
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
 
 .help {
-  margin-top: 10px;
-  color: #666;
-  font-size: 16px;
-  line-height: 1.4;
+    margin-top: 10px;
+    color: #666;
+    font-size: 16px;
+    line-height: 1.4;
 }
 
 
@@ -115,33 +118,27 @@ input[type="text"]:focus {
 
 #signatureCanvas {
 
-  display: block;
+    display: block;
 
-  width: 100%;
+    width: 100%;
 
-  height: 280px;
+    height: 280px;
 
-  background: white;
+    background: white;
 
-  border: 3px solid #9ca3af;
+    border: 3px solid #9ca3af;
 
-  border-radius: 12px;
+    border-radius: 12px;
 
-  /*
-    Wichtig für den T51:
-    Die Touch-Bewegung wird vom Canvas
-    verarbeitet und nicht vom Browser.
-  */
+    touch-action: none;
 
-  touch-action: none;
+    user-select: none;
 
-  user-select: none;
+    -webkit-user-select: none;
 
-  -webkit-user-select: none;
+    -webkit-touch-callout: none;
 
-  -webkit-touch-callout: none;
-
-  outline: none;
+    outline: none;
 }
 
 
@@ -151,51 +148,51 @@ input[type="text"]:focus {
 
 button {
 
-  width: 100%;
+    width: 100%;
 
-  border: none;
+    border: none;
 
-  border-radius: 12px;
+    border-radius: 12px;
 
-  padding: 17px;
+    padding: 17px;
 
-  margin-top: 11px;
+    margin-top: 11px;
 
-  font-size: 20px;
+    font-size: 20px;
 
-  font-weight: bold;
+    font-weight: bold;
 
 }
 
 .save {
 
-  background: #16a34a;
+    background: #16a34a;
 
-  color: white;
+    color: white;
 
 }
 
 .pdf {
 
-  background: #2563eb;
+    background: #2563eb;
 
-  color: white;
+    color: white;
 
 }
 
 .clear {
 
-  background: #6b7280;
+    background: #6b7280;
 
-  color: white;
+    color: white;
 
 }
 
 .delete {
 
-  background: #dc2626;
+    background: #dc2626;
 
-  color: white;
+    color: white;
 
 }
 
@@ -206,22 +203,21 @@ button {
 
 .success {
 
-  display: none;
+    display: none;
 
-  background: #dcfce7;
+    background: #dcfce7;
 
-  color: #166534;
+    color: #166534;
 
-  padding: 15px;
+    padding: 15px;
 
-  border-radius: 12px;
+    border-radius: 12px;
 
-  font-weight: bold;
+    font-weight: bold;
 
-  font-size: 18px;
+    font-size: 18px;
 
-  margin-bottom: 15px;
-
+    margin-bottom: 15px;
 }
 
 
@@ -231,43 +227,43 @@ button {
 
 .record {
 
-  border-top: 1px solid #ddd;
+    border-top: 1px solid #ddd;
 
-  padding: 17px 0;
+    padding: 17px 0;
 
 }
 
 .record:first-child {
 
-  border-top: none;
+    border-top: none;
 
 }
 
 .record div {
 
-  font-size: 17px;
+    font-size: 17px;
 
-  margin: 6px 0;
+    margin: 6px 0;
 
 }
 
 .signature-image {
 
-  width: 300px;
+    width: 300px;
 
-  max-width: 100%;
+    max-width: 100%;
 
-  border: 1px solid #ddd;
+    border: 1px solid #ddd;
 
-  border-radius: 8px;
+    border-radius: 8px;
 
 }
 
 .empty {
 
-  color: #777;
+    color: #777;
 
-  font-size: 16px;
+    font-size: 16px;
 
 }
 
@@ -281,11 +277,11 @@ button {
 
 <header>
 
-<h1>📱 Kundenerfassung</h1>
+    <h1>📱 Kundenerfassung</h1>
 
-<p>
-Empfang · Barcode · Unterschrift
-</p>
+    <p>
+        Empfang · Barcode · Unterschrift
+    </p>
 
 </header>
 
@@ -293,242 +289,240 @@ Empfang · Barcode · Unterschrift
 <div class="container">
 
 
-<!-- =========================================
-     ERFOLG
-     ========================================= -->
+    <!-- =====================================
+         ERFOLG
+         ===================================== -->
 
-<div
-id="success"
-class="success">
+    <div
+        id="success"
+        class="success">
 
-✓ Vorgang wurde gespeichert.
+        ✓ Vorgang wurde gespeichert.
 
-</div>
+    </div>
 
 
-<!-- =========================================
-     SCHRITT 1
-     ========================================= -->
+    <!-- =====================================
+         SCHRITT 1
+         ===================================== -->
 
-<div class="card">
+    <div class="card">
 
-<div class="step">
+        <div class="step">
 
-SCHRITT 1
+            SCHRITT 1
 
-</div>
+        </div>
 
 
-<label class="title">
+        <label>
 
-Wer hat die Sendung erhalten?
+            Wer hat die Sendung erhalten?
 
-</label>
+        </label>
 
 
-<label class="choice">
+        <label class="choice">
 
-<input
-type="radio"
-name="receiverType"
-value="Empfänger"
-checked>
+            <input
+                type="radio"
+                name="receiverType"
+                value="Empfänger"
+                checked>
 
-<span>
+            <span>
 
-Der Empfänger
+                Der Empfänger
 
-</span>
+            </span>
 
-</label>
+        </label>
 
 
-<label class="choice">
+        <label class="choice">
 
-<input
-type="radio"
-name="receiverType"
-value="Andere anwesende Person">
+            <input
+                type="radio"
+                name="receiverType"
+                value="Andere anwesende Person">
 
-<span>
+            <span>
 
-Eine andere anwesende Person
+                Eine andere anwesende Person
 
-</span>
+            </span>
 
-</label>
+        </label>
 
 
-<div
-id="otherPersonBox"
-class="hidden">
+        <div
+            id="otherPersonBox"
+            class="hidden">
 
 
-<label
-class="title"
-for="otherPersonName">
+            <label
+                for="otherPersonName">
 
-Name der anwesenden Person
+                Name der anwesenden Person
 
-</label>
+            </label>
 
 
-<input
-id="otherPersonName"
-type="text"
-placeholder="Name eingeben"
-autocomplete="off">
+            <input
+                id="otherPersonName"
+                type="text"
+                placeholder="Name eingeben"
+                autocomplete="off">
 
-</div>
 
-</div>
+        </div>
 
+    </div>
 
-<!-- =========================================
-     SCHRITT 2
-     ========================================= -->
 
-<div class="card">
+    <!-- =====================================
+         SCHRITT 2
+         ===================================== -->
 
-<div class="step">
+    <div class="card">
 
-SCHRITT 2
+        <div class="step">
 
-</div>
+            SCHRITT 2
 
+        </div>
 
-<label
-class="title"
-for="barcode">
 
-Barcode
+        <label
+            for="barcode">
 
-</label>
+            Barcode
 
+        </label>
 
-<input
-id="barcode"
-type="text"
-placeholder="Barcode scannen..."
-autocomplete="off">
 
+        <input
+            id="barcode"
+            type="text"
+            placeholder="Barcode scannen..."
+            autocomplete="off">
 
-<div class="help">
 
-Scan-Taste am Zebra T51 drücken.
+        <div class="help">
 
-Nach dem Scan wird die Tastatur
-automatisch geschlossen.
+            Scan-Taste am Zebra T51 drücken.
 
-</div>
+            Nach dem Scan wird die Tastatur
+            automatisch geschlossen.
 
-</div>
+        </div>
 
+    </div>
 
-<!-- =========================================
-     SCHRITT 3
-     ========================================= -->
 
-<div class="card">
+    <!-- =====================================
+         SCHRITT 3
+         ===================================== -->
 
-<div class="step">
+    <div class="card">
 
-SCHRITT 3
+        <div class="step">
 
-</div>
+            SCHRITT 3
 
+        </div>
 
-<label class="title">
 
-Unterschrift
+        <label>
 
-</label>
+            Unterschrift
 
+        </label>
 
-<canvas
-id="signatureCanvas">
 
-</canvas>
+        <canvas
+            id="signatureCanvas">
+        </canvas>
 
 
-<button
-class="clear"
-type="button"
-onclick="clearSignature()">
+        <button
+            class="clear"
+            type="button"
+            onclick="clearSignature()">
 
-Unterschrift löschen
+            Unterschrift löschen
 
-</button>
+        </button>
 
-</div>
+    </div>
 
 
-<!-- =========================================
-     SPEICHERN / PDF
-     ========================================= -->
+    <!-- =====================================
+         SPEICHERN / PDF
+         ===================================== -->
 
-<div class="card">
+    <div class="card">
 
 
-<button
-class="save"
-type="button"
-onclick="saveRecord()">
+        <button
+            class="save"
+            type="button"
+            onclick="saveRecord()">
 
-✓ Vorgang speichern
+            ✓ Vorgang speichern
 
-</button>
+        </button>
 
 
-<button
-class="pdf"
-type="button"
-onclick="createPDF()">
+        <button
+            class="pdf"
+            type="button"
+            onclick="createPDF()">
 
-📄 PDF erstellen
+            📄 PDF erstellen
 
-</button>
+        </button>
 
 
-</div>
+    </div>
 
 
-<!-- =========================================
-     GESPEICHERTE VORGÄNGE
-     ========================================= -->
+    <!-- =====================================
+         GESPEICHERTE VORGÄNGE
+         ===================================== -->
 
-<div class="card">
+    <div class="card">
 
 
-<div class="step">
+        <div class="step">
 
-📋 Gespeicherte Vorgänge
+            📋 Gespeicherte Vorgänge
 
-</div>
+        </div>
 
 
-<div id="records">
+        <div id="records">
 
-<div class="empty">
+            <div class="empty">
 
-Noch keine Vorgänge gespeichert.
+                Noch keine Vorgänge gespeichert.
 
-</div>
+            </div>
 
-</div>
+        </div>
 
 
-<button
-class="delete"
-type="button"
-onclick="deleteAllRecords()">
+        <button
+            class="delete"
+            type="button"
+            onclick="deleteAllRecords()">
 
-Alle Vorgänge löschen
+            Alle Vorgänge löschen
 
-</button>
+        </button>
 
 
-</div>
+    </div>
 
 
 </div>
@@ -542,41 +536,38 @@ Alle Vorgänge löschen
    ========================================= */
 
 const otherPersonBox =
-document.getElementById(
-"otherPersonBox"
-);
+    document.getElementById(
+        "otherPersonBox"
+    );
 
 
 const otherPersonName =
-document.getElementById(
-"otherPersonName"
-);
+    document.getElementById(
+        "otherPersonName"
+    );
 
 
 const barcode =
-document.getElementById(
-"barcode"
-);
+    document.getElementById(
+        "barcode"
+    );
 
 
 const canvas =
-document.getElementById(
-"signatureCanvas"
-);
+    document.getElementById(
+        "signatureCanvas"
+    );
 
 
 const ctx =
-canvas.getContext(
-"2d"
-);
+    canvas.getContext(
+        "2d"
+    );
 
 
-let drawing =
-false;
+let drawing = false;
 
-
-let hasSignature =
-false;
+let hasSignature = false;
 
 
 /* =========================================
@@ -584,55 +575,47 @@ false;
    ========================================= */
 
 document
-.querySelectorAll(
-'input[name="receiverType"]'
-)
-.forEach(
+    .querySelectorAll(
+        'input[name="receiverType"]'
+    )
+    .forEach(
 
-function(radio) {
+        function(radio) {
 
-radio.addEventListener(
+            radio.addEventListener(
+                "change",
+                function() {
 
-"change",
+                    if (
+                        this.value ===
+                        "Andere anwesende Person"
+                        &&
+                        this.checked
+                    ) {
 
-function() {
+                        otherPersonBox
+                            .classList
+                            .remove("hidden");
 
+                    }
 
-if (
+                    else {
 
-this.value ===
-"Andere anwesende Person"
+                        otherPersonBox
+                            .classList
+                            .add("hidden");
 
-&&
+                        otherPersonName.value =
+                            "";
 
-this.checked
+                    }
 
-) {
+                }
+            );
 
-otherPersonBox
-.classList
-.remove("hidden");
+        }
 
-}
-
-else {
-
-otherPersonBox
-.classList
-.add("hidden");
-
-otherPersonName.value =
-"";
-
-}
-
-}
-
-);
-
-}
-
-);
+    );
 
 
 /* =========================================
@@ -641,19 +624,19 @@ otherPersonName.value =
 
 function closeKeyboard() {
 
-if (
-document.activeElement
-) {
+    if (
+        document.activeElement
+    ) {
 
-document
-.activeElement
-.blur();
+        document
+            .activeElement
+            .blur();
 
-}
+    }
 
-otherPersonName.blur();
+    otherPersonName.blur();
 
-barcode.blur();
+    barcode.blur();
 
 }
 
@@ -664,31 +647,23 @@ barcode.blur();
 
 barcode.addEventListener(
 
-"keydown",
+    "keydown",
 
-function(event) {
+    function(event) {
 
+        if (
+            event.key === "Enter"
+            ||
+            event.keyCode === 13
+        ) {
 
-if (
+            event.preventDefault();
 
-event.key === "Enter"
+            closeKeyboard();
 
-||
+        }
 
-event.keyCode === 13
-
-) {
-
-
-event.preventDefault();
-
-
-closeKeyboard();
-
-
-}
-
-}
+    }
 
 );
 
@@ -698,42 +673,42 @@ closeKeyboard();
    ========================================= */
 
 /*
-   Ganz wichtig:
+   WICHTIG:
 
-   KEINE devicePixelRatio-Skalierung.
+   Keine devicePixelRatio-Skalierung.
 
-   Genau diese Variante hat auf deinem
-   T51 die Unterschrift 1:1 dargestellt.
+   Dadurch entspricht die sichtbare
+   Canvas-Größe direkt der Zeichenfläche.
 */
 
 function setupCanvas() {
 
-const rect =
-canvas.getBoundingClientRect();
+    const rect =
+        canvas.getBoundingClientRect();
 
 
-canvas.width =
-rect.width;
+    canvas.width =
+        rect.width;
 
 
-canvas.height =
-rect.height;
+    canvas.height =
+        rect.height;
 
 
-ctx.lineWidth =
-3;
+    ctx.lineWidth =
+        3;
 
 
-ctx.lineCap =
-"round";
+    ctx.lineCap =
+        "round";
 
 
-ctx.lineJoin =
-"round";
+    ctx.lineJoin =
+        "round";
 
 
-ctx.strokeStyle =
-"#000";
+    ctx.strokeStyle =
+        "#000";
 
 }
 
@@ -742,70 +717,58 @@ setupCanvas();
 
 
 /* =========================================
-   TOUCH-POSITION
+   POSITION
    ========================================= */
 
 function getPosition(event) {
 
-
-const rect =
-canvas.getBoundingClientRect();
-
-
-let clientX;
-
-let clientY;
+    const rect =
+        canvas.getBoundingClientRect();
 
 
-if (
+    let clientX;
 
-event.touches
-
-&&
-
-event.touches.length > 0
-
-) {
+    let clientY;
 
 
-clientX =
-event.touches[0].clientX;
+    if (
+        event.touches
+        &&
+        event.touches.length > 0
+    ) {
+
+        clientX =
+            event.touches[0].clientX;
 
 
-clientY =
-event.touches[0].clientY;
+        clientY =
+            event.touches[0].clientY;
+
+    }
+
+    else {
+
+        clientX =
+            event.clientX;
 
 
-}
+        clientY =
+            event.clientY;
 
-else {
-
-
-clientX =
-event.clientX;
+    }
 
 
-clientY =
-event.clientY;
+    return {
 
+        x:
+            clientX -
+            rect.left,
 
-}
+        y:
+            clientY -
+            rect.top
 
-
-return {
-
-
-x:
-clientX -
-rect.left,
-
-
-y:
-clientY -
-rect.top
-
-
-};
+    };
 
 }
 
@@ -816,42 +779,34 @@ rect.top
 
 function startDrawing(event) {
 
+    event.preventDefault();
 
-event.preventDefault();
+    closeKeyboard();
 
-
-/*
-   Tastatur schließen.
-*/
-
-closeKeyboard();
+    drawing =
+        true;
 
 
-drawing =
-true;
+    hasSignature =
+        true;
 
 
-hasSignature =
-true;
+    const position =
+        getPosition(
+            event
+        );
 
 
-const position =
-getPosition(
-event
-);
+    ctx.beginPath();
 
 
-ctx.beginPath();
+    ctx.moveTo(
 
+        position.x,
 
-ctx.moveTo(
+        position.y
 
-position.x,
-
-position.y
-
-);
-
+    );
 
 }
 
@@ -862,33 +817,32 @@ position.y
 
 function draw(event) {
 
+    if (!drawing) {
 
-if (!drawing) {
+        return;
 
-return;
-
-}
-
-
-event.preventDefault();
+    }
 
 
-const position =
-getPosition(
-event
-);
+    event.preventDefault();
 
 
-ctx.lineTo(
-
-position.x,
-
-position.y
-
-);
+    const position =
+        getPosition(
+            event
+        );
 
 
-ctx.stroke();
+    ctx.lineTo(
+
+        position.x,
+
+        position.y
+
+    );
+
+
+    ctx.stroke();
 
 }
 
@@ -899,115 +853,114 @@ ctx.stroke();
 
 function stopDrawing(event) {
 
+    if (event) {
 
-if (event) {
+        event.preventDefault();
 
-event.preventDefault();
-
-}
-
-
-drawing =
-false;
+    }
 
 
-ctx.closePath();
+    drawing =
+        false;
+
+
+    ctx.closePath();
 
 }
 
 
 /* =========================================
-   TOUCH EVENTS
+   TOUCH
    ========================================= */
 
 canvas.addEventListener(
 
-"touchstart",
+    "touchstart",
 
-startDrawing,
+    startDrawing,
 
-{
-passive: false
-}
-
-);
-
-
-canvas.addEventListener(
-
-"touchmove",
-
-draw,
-
-{
-passive: false
-}
+    {
+        passive: false
+    }
 
 );
 
 
 canvas.addEventListener(
 
-"touchend",
+    "touchmove",
 
-stopDrawing,
+    draw,
 
-{
-passive: false
-}
+    {
+        passive: false
+    }
 
 );
 
 
 canvas.addEventListener(
 
-"touchcancel",
+    "touchend",
 
-stopDrawing,
+    stopDrawing,
 
-{
-passive: false
-}
+    {
+        passive: false
+    }
+
+);
+
+
+canvas.addEventListener(
+
+    "touchcancel",
+
+    stopDrawing,
+
+    {
+        passive: false
+    }
 
 );
 
 
 /* =========================================
-   MAUS FALLBACK
+   MAUS
    ========================================= */
 
 canvas.addEventListener(
 
-"mousedown",
+    "mousedown",
 
-startDrawing
-
-);
-
-
-canvas.addEventListener(
-
-"mousemove",
-
-draw
+    startDrawing
 
 );
 
 
 canvas.addEventListener(
 
-"mouseup",
+    "mousemove",
 
-stopDrawing
+    draw
 
 );
 
 
 canvas.addEventListener(
 
-"mouseleave",
+    "mouseup",
 
-stopDrawing
+    stopDrawing
+
+);
+
+
+canvas.addEventListener(
+
+    "mouseleave",
+
+    stopDrawing
 
 );
 
@@ -1018,22 +971,21 @@ stopDrawing
 
 function clearSignature() {
 
+    ctx.clearRect(
 
-ctx.clearRect(
+        0,
 
-0,
+        0,
 
-0,
+        canvas.width,
 
-canvas.width,
+        canvas.height
 
-canvas.height
-
-);
+    );
 
 
-hasSignature =
-false;
+    hasSignature =
+        false;
 
 }
 
@@ -1044,50 +996,45 @@ false;
 
 function getReceiverData() {
 
+    const selected =
 
-const selected =
+        document.querySelector(
 
-document.querySelector(
+            'input[name="receiverType"]:checked'
 
-'input[name="receiverType"]:checked'
-
-);
-
-
-const type =
-selected.value;
+        );
 
 
-let name =
-"";
+    const type =
+        selected.value;
 
 
-if (
-
-type ===
-"Andere anwesende Person"
-
-) {
-
-name =
-otherPersonName
-.value
-.trim();
-
-}
+    let name =
+        "";
 
 
-return {
+    if (
+        type ===
+        "Andere anwesende Person"
+    ) {
+
+        name =
+            otherPersonName
+                .value
+                .trim();
+
+    }
 
 
-type:
-type,
+    return {
 
+        type:
+            type,
 
-name:
-name
+        name:
+            name
 
-};
+    };
 
 }
 
@@ -1099,242 +1046,201 @@ name
 function saveRecord() {
 
 
-const receiver =
-getReceiverData();
+    const receiver =
+        getReceiverData();
 
 
-const code =
-barcode.value.trim();
+    const code =
+        barcode.value.trim();
 
 
-if (
+    if (
 
-receiver.type ===
-"Andere anwesende Person"
+        receiver.type ===
+        "Andere anwesende Person"
 
-&&
+        &&
 
-!receiver.name
+        !receiver.name
 
-) {
+    ) {
 
+        alert(
 
-alert(
+            "Bitte den Namen der anwesenden Person eingeben."
 
-"Bitte den Namen der anwesenden Person eingeben."
+        );
 
-);
 
+        otherPersonName.focus();
 
-otherPersonName.focus();
 
+        return;
 
-return;
+    }
 
-}
 
+    if (!code) {
 
-if (!code) {
+        alert(
 
+            "Bitte zuerst den Barcode scannen."
 
-alert(
+        );
 
-"Bitte zuerst den Barcode scannen."
 
-);
+        barcode.focus();
 
 
-barcode.focus();
+        return;
 
+    }
 
-return;
 
-}
+    if (!hasSignature) {
 
+        alert(
 
-if (!hasSignature) {
+            "Bitte den Empfang unterschreiben lassen."
 
+        );
 
-alert(
 
-"Bitte den Empfang unterschreiben lassen."
+        return;
 
-);
+    }
 
 
-return;
+    const record = {
 
-}
+        receiverType:
+            receiver.type,
 
+        receiverName:
+            receiver.name,
 
-/*
-   Vorgang erstellen
-*/
+        barcode:
+            code,
 
-const record = {
+        date:
+            new Date()
+                .toLocaleString(
+                    "de-DE"
+                ),
 
+        signature:
+            canvas.toDataURL(
+                "image/png"
+            )
 
-receiverType:
-receiver.type,
+    };
 
 
-receiverName:
-receiver.name,
+    const records =
 
+        JSON.parse(
 
-barcode:
-code,
+            localStorage.getItem(
+                "zebraRecords"
+            )
 
+            ||
 
-date:
-new Date()
-.toLocaleString(
-"de-DE"
-),
+            "[]"
 
+        );
 
-signature:
-canvas.toDataURL(
-"image/png"
-)
 
-};
+    records.unshift(
+        record
+    );
 
 
-/*
-   Bestehende Vorgänge laden
-*/
+    localStorage.setItem(
 
-const records =
+        "zebraRecords",
 
-JSON.parse(
+        JSON.stringify(
+            records
+        )
 
-localStorage.getItem(
-"zebraRecords"
-)
+    );
 
-||
 
-"[]"
+    loadRecords();
 
-);
 
+    otherPersonName.value =
+        "";
 
-/*
-   Neuen Vorgang vorne einfügen
-*/
+    barcode.value =
+        "";
 
-records.unshift(
-record
-);
 
+    clearSignature();
 
-/*
-   Speichern
-*/
 
-localStorage.setItem(
+    closeKeyboard();
 
-"zebraRecords",
 
-JSON.stringify(
-records
-)
+    document
+        .querySelector(
 
-);
+            'input[name="receiverType"][value="Empfänger"]'
 
+        )
+        .checked =
+        true;
 
-/*
-   Anzeige aktualisieren
-*/
 
-loadRecords();
+    otherPersonBox
+        .classList
+        .add("hidden");
 
 
-/*
-   Formular zurücksetzen
-*/
+    const success =
+        document.getElementById(
+            "success"
+        );
 
-otherPersonName.value =
-"";
 
+    success.style.display =
+        "block";
 
-barcode.value =
-"";
 
+    setTimeout(
 
-clearSignature();
+        function() {
 
+            success.style.display =
+                "none";
 
-closeKeyboard();
+        },
 
+        3000
 
-document
-
-.querySelector(
-
-'input[name="receiverType"][value="Empfänger"]'
-
-)
-
-.checked =
-true;
-
-
-otherPersonBox
-.classList
-.add("hidden");
-
-
-/*
-   Erfolgsmeldung
-*/
-
-const success =
-
-document.getElementById(
-"success"
-);
-
-
-success.style.display =
-"block";
-
-
-setTimeout(
-
-function() {
-
-success.style.display =
-"none";
-
-},
-
-3000
-
-);
+    );
 
 }
 
 
 /* =========================================
-   SICHERER TEXT
+   HTML SICHER DARSTELLEN
    ========================================= */
 
 function escapeHtml(text) {
 
-
-const div =
-document.createElement(
-"div"
-);
-
-
-div.textContent =
-text;
+    const div =
+        document.createElement(
+            "div"
+        );
 
 
-return div.innerHTML;
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
 
 }
 
@@ -1346,165 +1252,159 @@ return div.innerHTML;
 function loadRecords() {
 
 
-const records =
+    const records =
 
-JSON.parse(
+        JSON.parse(
 
-localStorage.getItem(
-"zebraRecords"
-)
+            localStorage.getItem(
+                "zebraRecords"
+            )
 
-||
+            ||
 
-"[]"
+            "[]"
 
-);
+        );
 
 
-const container =
+    const container =
 
-document.getElementById(
-"records"
-);
+        document.getElementById(
+            "records"
+        );
 
 
-if (
+    if (
+        records.length === 0
+    ) {
 
-records.length === 0
+        container.innerHTML =
 
-) {
+            '<div class="empty">' +
 
+            'Noch keine Vorgänge gespeichert.' +
 
-container.innerHTML =
+            '</div>';
 
-'<div class="empty">' +
 
-'Noch keine Vorgänge gespeichert.' +
+        return;
 
-'</div>';
+    }
 
 
-return;
+    container.innerHTML =
+        "";
 
-}
 
+    records.forEach(
 
-container.innerHTML =
-"";
+        function(record) {
 
 
-records.forEach(
+            const div =
+                document.createElement(
+                    "div"
+                );
 
-function(record) {
 
+            div.className =
+                "record";
 
-const div =
-document.createElement(
-"div"
-);
 
+            let html =
 
-div.className =
-"record";
+                "<div><strong>Empfangen von:</strong> "
 
+                +
 
-let html =
+                escapeHtml(
+                    record.receiverType
+                )
 
+                +
 
-"<div><strong>Empfangen von:</strong> "
+                "</div>";
 
-+
 
-escapeHtml(
-record.receiverType
-)
+            if (
+                record.receiverName
+            ) {
 
-+
+                html +=
 
-"</div>";
+                    "<div><strong>Name:</strong> "
 
+                    +
 
-if (
-record.receiverName
-) {
+                    escapeHtml(
+                        record.receiverName
+                    )
 
+                    +
 
-html +=
+                    "</div>";
 
-"<div><strong>Name:</strong> "
+            }
 
-+
 
-escapeHtml(
-record.receiverName
-)
+            html +=
 
-+
+                "<div><strong>Barcode:</strong> "
 
-"</div>";
+                +
 
-}
+                escapeHtml(
+                    record.barcode
+                )
 
+                +
 
-html +=
+                "</div>";
 
-"<div><strong>Barcode:</strong> "
 
-+
+            html +=
 
-escapeHtml(
-record.barcode
-)
+                "<div><strong>Datum:</strong> "
 
-+
+                +
 
-"</div>";
+                escapeHtml(
+                    record.date
+                )
 
+                +
 
-html +=
+                "</div>";
 
-"<div><strong>Datum:</strong> "
 
-+
+            html +=
 
-escapeHtml(
-record.date
-)
+                "<div><strong>Unterschrift:</strong></div>"
 
-+
+                +
 
-"</div>";
+                '<img class="signature-image" src="'
 
+                +
 
-html +=
+                record.signature
 
-"<div><strong>Unterschrift:</strong></div>"
+                +
 
-+
+                '" alt="Unterschrift">';
 
-'<img class="signature-image" src="'
 
-+
+            div.innerHTML =
+                html;
 
-record.signature
 
-+
+            container.appendChild(
+                div
+            );
 
-'" alt="Unterschrift">';
+        }
 
-
-div.innerHTML =
-html;
-
-
-container.appendChild(
-div
-);
-
-
-}
-
-);
+    );
 
 }
 
@@ -1516,139 +1416,129 @@ div
 function createPDF() {
 
 
-const receiver =
-getReceiverData();
+    const receiver =
+        getReceiverData();
 
 
-const code =
-barcode.value.trim();
+    const code =
+        barcode.value.trim();
 
 
-if (
+    if (
 
-receiver.type ===
-"Andere anwesende Person"
+        receiver.type ===
+        "Andere anwesende Person"
 
-&&
+        &&
 
-!receiver.name
+        !receiver.name
 
-) {
+    ) {
 
+        alert(
 
-alert(
+            "Bitte den Namen der anwesenden Person eingeben."
 
-"Bitte den Namen der anwesenden Person eingeben."
+        );
 
-);
 
+        return;
 
-return;
+    }
 
-}
 
+    if (!code) {
 
-if (!code) {
+        alert(
 
+            "Bitte zuerst den Barcode scannen."
 
-alert(
+        );
 
-"Bitte zuerst den Barcode scannen."
 
-);
+        return;
 
+    }
 
-return;
 
-}
+    if (!hasSignature) {
 
+        alert(
 
-if (!hasSignature) {
+            "Bitte zuerst unterschreiben."
 
+        );
 
-alert(
 
-"Bitte zuerst unterschreiben."
+        return;
 
-);
+    }
 
 
-return;
+    const signature =
+        canvas.toDataURL(
+            "image/png"
+        );
 
-}
 
+    const date =
 
-const signature =
+        new Date()
+            .toLocaleString(
+                "de-DE"
+            );
 
-canvas.toDataURL(
-"image/png"
-);
 
+    const pdfWindow =
 
-const date =
+        window.open(
+            "",
+            "_blank"
+        );
 
-new Date()
-.toLocaleString(
-"de-DE"
-);
 
+    if (!pdfWindow) {
 
-const pdfWindow =
+        alert(
 
-window.open(
-"",
-"_blank"
-);
+            "Das PDF-Fenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben."
 
+        );
 
-if (!pdfWindow) {
 
+        return;
 
-alert(
+    }
 
-"Das PDF-Fenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben."
 
-);
+    let personLine =
+        "";
 
 
-return;
+    if (
+        receiver.name
+    ) {
 
-}
+        personLine =
 
+            "<tr>" +
 
-let personLine =
-"";
+            "<td>Name</td>" +
 
+            "<td>" +
 
-if (
-receiver.name
-) {
+            escapeHtml(
+                receiver.name
+            ) +
 
+            "</td>" +
 
-personLine =
+            "</tr>";
 
-`
+    }
 
-<tr>
 
-<td>Name</td>
-
-<td>
-
-${escapeHtml(
-receiver.name
-)}
-
-</td>
-
-</tr>
-
-`;
-
-}
-
-
-pdfWindow.document.write(`
+    pdfWindow.document.write(`
 
 <!DOCTYPE html>
 
@@ -1660,106 +1550,106 @@ pdfWindow.document.write(`
 
 <title>Kundenerfassung</title>
 
+
 <style>
 
 body {
 
-font-family:
-Arial,
-sans-serif;
+    font-family:
+        Arial,
+        sans-serif;
 
-margin:
-40px;
+    margin:
+        40px;
 
-color:
-#222;
+    color:
+        #222;
 
 }
+
 
 h1 {
 
-font-size:
-28px;
-
-margin-bottom:
-30px;
+    font-size:
+        28px;
 
 }
+
 
 table {
 
-width:
-100%;
+    width:
+        100%;
 
-border-collapse:
-collapse;
+    border-collapse:
+        collapse;
 
 }
+
 
 td {
 
-padding:
-12px;
+    padding:
+        12px;
 
-border-bottom:
-1px solid #ddd;
+    border-bottom:
+        1px solid #ddd;
 
 }
+
 
 td:first-child {
 
-font-weight:
-bold;
+    font-weight:
+        bold;
 
-width:
-220px;
+    width:
+        220px;
 
 }
+
 
 h2 {
 
-margin-top:
-35px;
+    margin-top:
+        35px;
 
 }
+
 
 .signature {
 
-width:
-450px;
+    width:
+        450px;
 
-max-width:
-100%;
+    max-width:
+        100%;
 
-border:
-1px solid #999;
-
-margin-top:
-10px;
+    border:
+        1px solid #999;
 
 }
+
 
 .info {
 
-margin-top:
-30px;
+    margin-top:
+        30px;
 
-color:
-#666;
-
-font-size:
-14px;
+    color:
+        #666;
 
 }
+
 
 @media print {
 
-.info {
+    .info {
 
-display:
-none;
+        display:
+            none;
 
-}
+    }
 
 }
 
@@ -1792,7 +1682,7 @@ Empfangen von
 <td>
 
 ${escapeHtml(
-receiver.type
+    receiver.type
 )}
 
 </td>
@@ -1814,7 +1704,7 @@ Barcode
 <td>
 
 ${escapeHtml(
-code
+    code
 )}
 
 </td>
@@ -1833,7 +1723,7 @@ Datum / Uhrzeit
 <td>
 
 ${escapeHtml(
-date
+    date
 )}
 
 </td>
@@ -1876,17 +1766,17 @@ auswählen.
 window.onload =
 function() {
 
-setTimeout(
+    setTimeout(
 
-function() {
+        function() {
 
-window.print();
+            window.print();
 
-},
+        },
 
-400
+        400
 
-);
+    );
 
 };
 
@@ -1900,7 +1790,7 @@ window.print();
 `);
 
 
-pdfWindow.document.close();
+    pdfWindow.document.close();
 
 }
 
@@ -1912,59 +1802,56 @@ pdfWindow.document.close();
 function deleteAllRecords() {
 
 
-const records =
+    const records =
 
-JSON.parse(
+        JSON.parse(
 
-localStorage.getItem(
-"zebraRecords"
-)
+            localStorage.getItem(
+                "zebraRecords"
+            )
 
-||
+            ||
 
-"[]"
+            "[]"
 
-);
-
-
-if (
-
-records.length === 0
-
-) {
+        );
 
 
-alert(
+    if (
+        records.length === 0
+    ) {
 
-"Es sind keine Vorgänge gespeichert."
+        alert(
 
-);
+            "Es sind keine Vorgänge gespeichert."
 
-
-return;
-
-}
-
-
-if (
-
-confirm(
-
-"Wirklich alle Vorgänge löschen?"
-
-)
-
-) {
+        );
 
 
-localStorage.removeItem(
-"zebraRecords"
-);
+        return;
+
+    }
 
 
-loadRecords();
+    if (
 
-}
+        confirm(
+
+            "Wirklich alle Vorgänge löschen?"
+
+        )
+
+    ) {
+
+
+        localStorage.removeItem(
+            "zebraRecords"
+        );
+
+
+        loadRecords();
+
+    }
 
 }
 
@@ -1976,6 +1863,7 @@ loadRecords();
 loadRecords();
 
 </script>
+
 
 </body>
 
