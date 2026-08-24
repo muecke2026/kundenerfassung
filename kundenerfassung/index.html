@@ -350,22 +350,14 @@ button {
             <button type="button" class="btn-success" id="finishButton">Erfassung abschließen</button>
         </div>
 
-        <div id="status" class="status"></div>
-    </section>
-
-    <section class="card" id="summaryCard" style="display:none;">
-        <h2>4. Zusammenfassung</h2>
-
-        <div id="summary" class="preview"></div>
-
         <button type="button" class="btn-primary full" id="pdfSaveButton">
             PDF erstellen &amp; speichern
         </button>
 
-        <button type="button" class="btn-secondary full" id="newButton">
-            Neue Erfassung
-        </button>
+        <div id="status" class="status"></div>
     </section>
+
+
 
 </main>
 
@@ -833,14 +825,7 @@ function escapeHtml(text) {
 document.getElementById("finishButton").addEventListener("click", function () {
     if (!validateForm()) return;
 
-    createSummary();
-
-    document.getElementById("summaryCard").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-
-    showStatus("Erfassung abgeschlossen.");
+    showStatus("Erfassung abgeschlossen. Jetzt kann das PDF erstellt und gespeichert werden.");
 });
 
 /* =========================================================
@@ -1040,7 +1025,6 @@ document.getElementById("newButton").addEventListener("click", function () {
     generatedPdf = null;
     generatedPdfFileName = "Kundenerfassung.pdf";
 
-    document.getElementById("summaryCard").style.display = "none";
     document.getElementById("status").style.display = "none";
 
     window.scrollTo({
