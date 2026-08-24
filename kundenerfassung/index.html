@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width,
-               initial-scale=1.0,
-               maximum-scale=1.0,
-               user-scalable=no">
+      content="width=device-width, initial-scale=1.0,
+               maximum-scale=1.0, user-scalable=no">
 
 <title>Kundenerfassung</title>
+
+<!-- PDF-Bibliothek -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
@@ -120,20 +121,34 @@ input[type="text"]:focus {
     line-height: 1.4;
 }
 
+
+/* =========================================
+   UNTERSCHRIFT
+   ========================================= */
+
 #signatureCanvas {
     display: block;
     width: 100%;
     height: 280px;
 
     background: white;
+
     border: 3px solid #64748b;
     border-radius: 12px;
 
     touch-action: none;
+
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
+
+    outline: none;
 }
+
+
+/* =========================================
+   BUTTONS
+   ========================================= */
 
 button {
     width: 100%;
@@ -152,6 +167,11 @@ button {
 
 .pdf {
     background: #2563eb;
+    color: white;
+}
+
+.email {
+    background: #7c3aed;
     color: white;
 }
 
@@ -201,6 +221,11 @@ button {
     color: #777;
     font-size: 16px;
 }
+
+
+/* =========================================
+   QUERFORMAT
+   ========================================= */
 
 @media (orientation: landscape) {
 
@@ -293,6 +318,7 @@ Eine andere anwesende Person
 id="otherPersonBox"
 class="hidden">
 
+
 <label
 for="otherPersonName">
 
@@ -300,11 +326,13 @@ Name der anwesenden Person
 
 </label>
 
+
 <input
 id="otherPersonName"
 type="text"
 placeholder="Name eingeben"
 autocomplete="off">
+
 
 </div>
 
@@ -381,10 +409,11 @@ Unterschrift löschen
 
 
 <!-- =====================================
-     SPEICHERN / PDF
+     SPEICHERN / PDF / E-MAIL
      ===================================== -->
 
 <div class="card">
+
 
 <button
 class="save"
@@ -404,6 +433,17 @@ onclick="createPDF()">
 📄 PDF erstellen
 
 </button>
+
+
+<button
+class="email"
+type="button"
+onclick="sendPDFByEmail()">
+
+📧 PDF per E-Mail senden
+
+</button>
+
 
 </div>
 
@@ -449,8 +489,9 @@ Alle Vorgänge löschen
 
 <script>
 
+
 /* =====================================================
-   GRUNDLAGEN
+   ELEMENTE
    ===================================================== */
 
 const canvas =
@@ -466,18 +507,6 @@ canvas.getContext(
 let drawing = false;
 
 let hasSignature = false;
-
-
-/*
-   Diese Variable enthält die aktuelle
-   Unterschrift als Bild.
-
-   Dadurch können wir sie beim Drehen
-   des T51 auf die neue Canvas-Größe
-   übertragen.
-*/
-
-let savedSignature = null;
 
 
 /* =====================================================
@@ -535,7 +564,7 @@ document
 
 
 /* =====================================================
-   TASTATUR
+   TASTATUR SCHLIESSEN
    ===================================================== */
 
 function closeKeyboard() {
@@ -586,20 +615,8 @@ barcode.addEventListener(
 
 
 /* =====================================================
-   CANVAS-GRÖSSE
+   CANVAS
    ===================================================== */
-
-/*
-   Wichtig:
-
-   Die interne Canvas-Größe wird immer exakt
-   aus der aktuell sichtbaren CSS-Größe berechnet.
-
-   Es gibt KEINE devicePixelRatio-Vergrößerung.
-
-   Dadurch entsprechen Touch-Koordinaten
-   direkt den sichtbaren Koordinaten.
-*/
 
 function getCanvasSize() {
 
@@ -625,10 +642,6 @@ function getCanvasSize() {
 }
 
 
-/* =====================================================
-   CANVAS EINRICHTEN
-   ===================================================== */
-
 function setupCanvas() {
 
     const size =
@@ -637,6 +650,7 @@ function setupCanvas() {
 
     canvas.width =
         size.width;
+
 
     canvas.height =
         size.height;
@@ -655,11 +669,14 @@ function setupCanvas() {
     ctx.lineWidth =
         3;
 
+
     ctx.lineCap =
         "round";
 
+
     ctx.lineJoin =
         "round";
+
 
     ctx.strokeStyle =
         "#000";
@@ -667,150 +684,13 @@ function setupCanvas() {
 }
 
 
-/* =====================================================
-   UNTERSCHRIFT VOR DEM RESIZE SICHERN
-   ===================================================== */
-
-function saveCurrentSignature() {
-
-    if (!hasSignature) {
-
-        return null;
-
-    }
-
-
-    return {
-
-        image:
-            canvas.toDataURL(
-                "image/png"
-            ),
-
-        width:
-            canvas.width,
-
-        height:
-            canvas.height
-
-    };
-
-}
-
-
-/* =====================================================
-   UNTERSCHRIFT NACH RESIZE WIEDERHERSTELLEN
-   ===================================================== */
-
-function restoreSignature(data) {
-
-    if (!data) {
-
-        return;
-
-    }
-
-
-    const image =
-        new Image();
-
-
-    image.onload =
-    function() {
-
-        const scaleX =
-            canvas.width /
-            data.width;
-
-
-        const scaleY =
-            canvas.height /
-            data.height;
-
-
-        /*
-           Die gespeicherte Unterschrift wird
-           proportional auf die neue Canvas-Größe
-           übertragen.
-        */
-
-        ctx.save();
-
-        ctx.setTransform(
-            1,
-            0,
-            0,
-            1,
-            0,
-            0
-        );
-
-
-        ctx.drawImage(
-
-            image,
-
-            0,
-            0,
-
-            data.width,
-            data.height,
-
-            0,
-            0,
-
-            canvas.width,
-            canvas.height
-
-        );
-
-
-        ctx.restore();
-
-
-        ctx.lineWidth =
-            3;
-
-        ctx.lineCap =
-            "round";
-
-        ctx.lineJoin =
-            "round";
-
-        ctx.strokeStyle =
-            "#000";
-
-    };
-
-
-    image.src =
-        data.image;
-
-}
-
-
-/* =====================================================
-   CANVAS INITIAL
-   ===================================================== */
-
-function initializeCanvas() {
-
-    setupCanvas();
-
-}
-
-
-/*
-   Erst nach dem Layout initialisieren.
-*/
-
 window.requestAnimationFrame(
-    initializeCanvas
+    setupCanvas
 );
 
 
 /* =====================================================
-   TOUCH-POSITION
+   POSITION
    ===================================================== */
 
 function getPosition(event) {
@@ -835,7 +715,7 @@ function getPosition(event) {
 
 
 /* =====================================================
-   UNTERSCHRIFT START
+   UNTERSCHRIFT
    ===================================================== */
 
 function startDrawing(event) {
@@ -852,9 +732,7 @@ function startDrawing(event) {
 
 
     const position =
-        getPosition(
-            event
-        );
+        getPosition(event);
 
 
     ctx.beginPath();
@@ -868,10 +746,6 @@ function startDrawing(event) {
 
     );
 
-
-    /*
-       Pointer festhalten.
-    */
 
     if (
         event.pointerId !== undefined
@@ -892,10 +766,6 @@ function startDrawing(event) {
 }
 
 
-/* =====================================================
-   UNTERSCHRIFT ZEICHNEN
-   ===================================================== */
-
 function draw(event) {
 
     if (!drawing) {
@@ -909,9 +779,7 @@ function draw(event) {
 
 
     const position =
-        getPosition(
-            event
-        );
+        getPosition(event);
 
 
     ctx.lineTo(
@@ -927,10 +795,6 @@ function draw(event) {
 
 }
 
-
-/* =====================================================
-   UNTERSCHRIFT ENDE
-   ===================================================== */
 
 function stopDrawing(event) {
 
@@ -949,8 +813,7 @@ function stopDrawing(event) {
 
 
     if (
-        event
-        &&
+        event &&
         event.pointerId !== undefined
     ) {
 
@@ -963,18 +826,6 @@ function stopDrawing(event) {
         }
 
         catch (_) {}
-
-    }
-
-
-    /*
-       Aktuelle Unterschrift sichern.
-    */
-
-    if (hasSignature) {
-
-        savedSignature =
-            saveCurrentSignature();
 
     }
 
@@ -1022,6 +873,72 @@ canvas.addEventListener(
 
 
 /* =====================================================
+   ORIENTIERUNG
+   ===================================================== */
+
+let orientationTimer = null;
+
+
+window.addEventListener(
+    "resize",
+    function() {
+
+        clearTimeout(
+            orientationTimer
+        );
+
+
+        orientationTimer =
+            setTimeout(
+                function() {
+
+                    /*
+                       Nur neu dimensionieren,
+                       wenn noch nicht unterschrieben wurde.
+                    */
+
+                    if (!hasSignature) {
+
+                        setupCanvas();
+
+                    }
+
+                },
+                250
+            );
+
+    }
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    function() {
+
+        clearTimeout(
+            orientationTimer
+        );
+
+
+        orientationTimer =
+            setTimeout(
+                function() {
+
+                    if (!hasSignature) {
+
+                        setupCanvas();
+
+                    }
+
+                },
+                300
+            );
+
+    }
+);
+
+
+/* =====================================================
    UNTERSCHRIFT LÖSCHEN
    ===================================================== */
 
@@ -1040,111 +957,7 @@ function clearSignature() {
     hasSignature =
         false;
 
-
-    savedSignature =
-        null;
-
 }
-
-
-/* =====================================================
-   ORIENTIERUNG / QUERFORMAT
-   ===================================================== */
-
-/*
-   Beim Drehen des T51 verändert sich die
-   sichtbare Canvas-Größe.
-
-   Wir speichern die bisherige Unterschrift,
-   dimensionieren das Canvas neu und stellen
-   die Unterschrift wieder her.
-*/
-
-let resizeTimer = null;
-
-
-function handleOrientationChange() {
-
-    clearTimeout(
-        resizeTimer
-    );
-
-
-    resizeTimer =
-        setTimeout(
-
-            function() {
-
-
-                const oldSignature =
-
-                    hasSignature
-
-                    ?
-
-                    saveCurrentSignature()
-
-                    :
-
-                    null;
-
-
-                /*
-                   Canvas neu an die aktuelle
-                   Ausrichtung anpassen.
-                */
-
-                setupCanvas();
-
-
-                /*
-                   Vorhandene Unterschrift
-                   wiederherstellen.
-                */
-
-                if (oldSignature) {
-
-                    restoreSignature(
-                        oldSignature
-                    );
-
-                    savedSignature =
-                        oldSignature;
-
-                    hasSignature =
-                        true;
-
-                }
-
-
-            },
-
-            250
-
-        );
-
-}
-
-
-/*
-   Android / Zebra:
-   resize wird beim Drehen ausgelöst.
-*/
-
-window.addEventListener(
-    "resize",
-    handleOrientationChange
-);
-
-
-/*
-   Zusätzlich orientationchange.
-*/
-
-window.addEventListener(
-    "orientationchange",
-    handleOrientationChange
-);
 
 
 /* =====================================================
@@ -1154,11 +967,8 @@ window.addEventListener(
 function getReceiverData() {
 
     const selected =
-
         document.querySelector(
-
             'input[name="receiverType"]:checked'
-
         );
 
 
@@ -1166,8 +976,7 @@ function getReceiverData() {
         selected.value;
 
 
-    let name =
-        "";
+    let name = "";
 
 
     if (
@@ -1197,7 +1006,7 @@ function getReceiverData() {
 
 
 /* =====================================================
-   HTML SICHER DARSTELLEN
+   HTML SICHER
    ===================================================== */
 
 function escapeHtml(text) {
@@ -1232,14 +1041,10 @@ function saveRecord() {
 
 
     if (
-
         receiver.type ===
         "Andere anwesende Person"
-
         &&
-
         !receiver.name
-
     ) {
 
         alert(
@@ -1303,17 +1108,12 @@ function saveRecord() {
 
 
     const records =
-
         JSON.parse(
-
             localStorage.getItem(
                 "zebraRecords"
             )
-
             ||
-
             "[]"
-
         );
 
 
@@ -1323,40 +1123,31 @@ function saveRecord() {
 
 
     localStorage.setItem(
-
         "zebraRecords",
-
         JSON.stringify(
             records
         )
-
     );
 
 
     loadRecords();
 
 
-    otherPersonName.value =
-        "";
+    otherPersonName.value = "";
 
-    barcode.value =
-        "";
+    barcode.value = "";
 
 
     clearSignature();
-
 
     closeKeyboard();
 
 
     document
         .querySelector(
-
             'input[name="receiverType"][value="Empfänger"]'
-
         )
-        .checked =
-        true;
+        .checked = true;
 
 
     otherPersonBox
@@ -1375,39 +1166,31 @@ function saveRecord() {
 
 
     setTimeout(
-
         function() {
 
             success.style.display =
                 "none";
 
         },
-
         3000
-
     );
 
 }
 
 
 /* =====================================================
-   VORGÄNGE LADEN
+   VORGÄNGE
    ===================================================== */
 
 function loadRecords() {
 
     const records =
-
         JSON.parse(
-
             localStorage.getItem(
                 "zebraRecords"
             )
-
             ||
-
             "[]"
-
         );
 
 
@@ -1422,11 +1205,8 @@ function loadRecords() {
     ) {
 
         container.innerHTML =
-
             '<div class="empty">' +
-
             'Noch keine Vorgänge gespeichert.' +
-
             '</div>';
 
         return;
@@ -1434,13 +1214,11 @@ function loadRecords() {
     }
 
 
-    container.innerHTML =
-        "";
+    container.innerHTML = "";
 
 
     records.forEach(
         function(record) {
-
 
             const div =
                 document.createElement(
@@ -1550,10 +1328,24 @@ function loadRecords() {
 
 
 /* =====================================================
-   PDF
+   PDF ERSTELLEN
    ===================================================== */
 
-function createPDF() {
+function buildPDF() {
+
+    if (
+        !window.jspdf ||
+        !window.jspdf.jsPDF
+    ) {
+
+        alert(
+            "Die PDF-Bibliothek wurde noch nicht geladen. Bitte kurz warten und erneut versuchen."
+        );
+
+        return null;
+
+    }
+
 
     const receiver =
         getReceiverData();
@@ -1564,21 +1356,17 @@ function createPDF() {
 
 
     if (
-
         receiver.type ===
         "Andere anwesende Person"
-
         &&
-
         !receiver.name
-
     ) {
 
         alert(
             "Bitte den Namen der anwesenden Person eingeben."
         );
 
-        return;
+        return null;
 
     }
 
@@ -1589,7 +1377,7 @@ function createPDF() {
             "Bitte zuerst den Barcode scannen."
         );
 
-        return;
+        return null;
 
     }
 
@@ -1600,9 +1388,155 @@ function createPDF() {
             "Bitte zuerst unterschreiben."
         );
 
-        return;
+        return null;
 
     }
+
+
+    const jsPDF =
+        window.jspdf.jsPDF;
+
+
+    const pdf =
+        new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4"
+        });
+
+
+    const margin = 18;
+
+    let y = 22;
+
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+    pdf.setFontSize(
+        20
+    );
+
+
+    pdf.text(
+        "Kundenerfassung",
+        margin,
+        y
+    );
+
+
+    y += 14;
+
+
+    pdf.setFontSize(
+        11
+    );
+
+
+    const rows = [
+
+        [
+            "Empfangen von",
+            receiver.type
+        ]
+
+    ];
+
+
+    if (receiver.name) {
+
+        rows.push([
+            "Name",
+            receiver.name
+        ]);
+
+    }
+
+
+    rows.push(
+
+        [
+            "Barcode",
+            code
+        ],
+
+        [
+            "Datum / Uhrzeit",
+            new Date()
+                .toLocaleString(
+                    "de-DE"
+                )
+        ]
+
+    );
+
+
+    rows.forEach(
+        function(row) {
+
+            pdf.setFont(
+                "helvetica",
+                "bold"
+            );
+
+
+            pdf.text(
+                row[0] + ":",
+                margin,
+                y
+            );
+
+
+            pdf.setFont(
+                "helvetica",
+                "normal"
+            );
+
+
+            const wrapped =
+                pdf.splitTextToSize(
+                    row[1] || "-",
+                    125
+                );
+
+
+            pdf.text(
+                wrapped,
+                margin + 45,
+                y
+            );
+
+
+            y +=
+                Math.max(
+                    7,
+                    wrapped.length * 5 + 2
+                );
+
+        }
+    );
+
+
+    y += 10;
+
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+    pdf.text(
+        "Unterschrift:",
+        margin,
+        y
+    );
+
+
+    y += 5;
 
 
     const signature =
@@ -1611,252 +1545,211 @@ function createPDF() {
         );
 
 
-    const date =
+    const maxWidth = 170;
+
+    const maxHeight = 60;
+
+
+    const ratio =
+        canvas.width /
+        canvas.height;
+
+
+    let imageWidth =
+        maxWidth;
+
+
+    let imageHeight =
+        imageWidth /
+        ratio;
+
+
+    if (
+        imageHeight >
+        maxHeight
+    ) {
+
+        imageHeight =
+            maxHeight;
+
+
+        imageWidth =
+            imageHeight *
+            ratio;
+
+    }
+
+
+    pdf.addImage(
+
+        signature,
+
+        "PNG",
+
+        margin,
+
+        y,
+
+        imageWidth,
+
+        imageHeight
+
+    );
+
+
+    const filename =
+        "Kundenerfassung_" +
         new Date()
-            .toLocaleString(
-                "de-DE"
-            );
+            .toISOString()
+            .slice(0,10)
+        +
+        ".pdf";
 
 
-    const pdfWindow =
-        window.open(
-            "",
-            "_blank"
-        );
+    return {
+
+        pdf:
+            pdf,
+
+        blob:
+            pdf.output(
+                "blob"
+            ),
+
+        filename:
+            filename
+
+    };
+
+}
 
 
-    if (!pdfWindow) {
+/* =====================================================
+   PDF HERUNTERLADEN
+   ===================================================== */
 
-        alert(
-            "Das PDF-Fenster wurde blockiert. Bitte Pop-ups erlauben."
-        );
+function createPDF() {
+
+    const result =
+        buildPDF();
+
+
+    if (!result) {
 
         return;
 
     }
 
 
-    let personLine =
-        "";
+    result.pdf.save(
+        result.filename
+    );
+
+}
 
 
-    if (receiver.name) {
+/* =====================================================
+   PDF PER E-MAIL
+   ===================================================== */
 
-        personLine =
+async function sendPDFByEmail() {
 
-            "<tr>" +
+    const result =
+        buildPDF();
 
-            "<td>Name</td>" +
 
-            "<td>" +
+    if (!result) {
 
-            escapeHtml(
-                receiver.name
-            ) +
-
-            "</td>" +
-
-            "</tr>";
+        return;
 
     }
 
 
-    pdfWindow.document.write(`
+    const file =
+        new File(
 
-<!DOCTYPE html>
+            [
+                result.blob
+            ],
 
-<html lang="de">
+            result.filename,
 
-<head>
+            {
+                type:
+                    "application/pdf"
+            }
 
-<meta charset="UTF-8">
+        );
 
-<title>Kundenerfassung</title>
 
-<style>
+    /*
+       Android Share Sheet.
+       Wenn der Browser dies unterstützt,
+       wird das ECHTE PDF als Datei übergeben.
+    */
 
-body {
+    if (
+        navigator.share
+        &&
+        navigator.canShare
+        &&
+        navigator.canShare({
+            files: [file]
+        })
+    ) {
 
-font-family:
-Arial,
-sans-serif;
+        try {
 
-margin:
-40px;
+            await navigator.share({
 
-color:
-#222;
+                title:
+                    "Kundenerfassung",
 
-}
+                text:
+                    "Kundenerfassung als PDF",
 
-h1 {
+                files:
+                    [file]
 
-font-size:
-28px;
+            });
 
-}
 
-table {
+            return;
 
-width:
-100%;
+        }
 
-border-collapse:
-collapse;
+        catch (error) {
 
-}
+            if (
+                error
+                &&
+                error.name ===
+                "AbortError"
+            ) {
 
-td {
+                return;
 
-padding:
-12px;
+            }
 
-border-bottom:
-1px solid #ddd;
+        }
 
-}
+    }
 
-td:first-child {
 
-font-weight:
-bold;
+    /*
+       Fallback.
+    */
 
-width:
-220px;
+    result.pdf.save(
+        result.filename
+    );
 
-}
 
-h2 {
+    alert(
 
-margin-top:
-35px;
+        "Der T51-Browser unterstützt das direkte Teilen des PDF-Anhangs nicht. Das PDF wurde gespeichert und kann anschließend in der Mail-App angehängt werden."
 
-}
-
-.signature {
-
-width:
-450px;
-
-max-width:
-100%;
-
-border:
-1px solid #999;
-
-}
-
-.info {
-
-margin-top:
-30px;
-
-color:
-#666;
-
-font-size:
-14px;
-
-}
-
-@media print {
-
-.info {
-
-display:
-none;
-
-}
-
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h1>Kundenerfassung</h1>
-
-<table>
-
-<tr>
-
-<td>Empfangen von</td>
-
-<td>
-${escapeHtml(receiver.type)}
-</td>
-
-</tr>
-
-${personLine}
-
-<tr>
-
-<td>Barcode</td>
-
-<td>
-${escapeHtml(code)}
-</td>
-
-</tr>
-
-<tr>
-
-<td>Datum / Uhrzeit</td>
-
-<td>
-${escapeHtml(date)}
-</td>
-
-</tr>
-
-</table>
-
-<h2>Unterschrift</h2>
-
-<img
-class="signature"
-src="${signature}"
-alt="Unterschrift">
-
-<div class="info">
-
-Im Druckdialog bitte
-„Als PDF speichern“ auswählen.
-
-</div>
-
-<script>
-
-window.onload =
-function() {
-
-setTimeout(
-
-function() {
-
-window.print();
-
-},
-
-400
-
-);
-
-};
-
-<\/script>
-
-</body>
-
-</html>
-
-`);
-
-
-    pdfWindow.document.close();
+    );
 
 }
 
@@ -1868,17 +1761,12 @@ window.print();
 function deleteAllRecords() {
 
     const records =
-
         JSON.parse(
-
             localStorage.getItem(
                 "zebraRecords"
             )
-
             ||
-
             "[]"
-
         );
 
 
@@ -1896,11 +1784,9 @@ function deleteAllRecords() {
 
 
     if (
-
         confirm(
             "Wirklich alle Vorgänge löschen?"
         )
-
     ) {
 
         localStorage.removeItem(
