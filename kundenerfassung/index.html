@@ -358,10 +358,9 @@ button {
 
         <div id="summary" class="preview"></div>
 
-        <div class="button-row">
-            <button type="button" class="btn-primary" id="pdfButton">PDF erstellen</button>
-            <button type="button" class="btn-success" id="savePdfButton">PDF speichern</button>
-        </div>
+        <button type="button" class="btn-primary full" id="pdfSaveButton">
+            PDF erstellen &amp; speichern
+        </button>
 
         <button type="button" class="btn-secondary full" id="newButton">
             Neue Erfassung
@@ -959,12 +958,11 @@ function buildPdf() {
 }
 
 /* =========================================================
-   PDF ERSTELLEN / SPEICHERN
+   PDF ERSTELLEN & SPEICHERN
    ========================================================= */
 
 let generatedPdf = null;
 let generatedPdfFileName = "Kundenerfassung.pdf";
-
 
 function getPdfFileName() {
 
@@ -978,53 +976,25 @@ function getPdfFileName() {
 
 
 /*
-   PDF erstellen:
-   Das PDF wird erzeugt und im Speicher bereitgehalten.
-   Es wird hier noch NICHT gedruckt und NICHT gespeichert.
+   EIN Button:
+   PDF erzeugen und unmittelbar speichern.
 */
 
-document.getElementById("pdfButton").addEventListener("click", function () {
+document.getElementById("pdfSaveButton").addEventListener("click", function () {
 
     const pdf = buildPdf();
 
-    if (!pdf) return;
+    if (!pdf) {
+        return;
+    }
 
     generatedPdf = pdf;
     generatedPdfFileName = getPdfFileName();
 
-    showStatus(
-        "PDF wurde erstellt. Jetzt auf „PDF speichern“ tippen."
-    );
-
-});
-
-
-/*
-   PDF speichern:
-   Speichert das zuvor erstellte PDF.
-   Falls noch kein PDF erstellt wurde, wird es automatisch
-   vorher erstellt.
-*/
-
-document.getElementById("savePdfButton").addEventListener("click", function () {
-
-    if (!generatedPdf) {
-
-        const pdf = buildPdf();
-
-        if (!pdf) return;
-
-        generatedPdf = pdf;
-        generatedPdfFileName = getPdfFileName();
-
-    }
-
-    generatedPdf.save(
-        generatedPdfFileName
-    );
+    pdf.save(generatedPdfFileName);
 
     showStatus(
-        "PDF wurde gespeichert."
+        "PDF wurde erstellt und gespeichert."
     );
 
 });
