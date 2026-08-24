@@ -161,25 +161,6 @@ button {
     display: none;
 }
 
-.package-field {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-top: 8px;
-}
-
-.package-field input {
-    flex: 1;
-}
-
-.package-remove {
-    flex: 0 0 auto;
-    min-width: 48px;
-    padding: 10px;
-    background: #dc2626;
-    color: white;
-}
-
 .package-row {
     display: grid;
     grid-template-columns: 32px 1fr 48px;
@@ -452,8 +433,16 @@ function getPosition(event) {
    UNTERSCHRIFT START
    ========================================================= */
 
+function closeKeyboard() {
+    const active = document.activeElement;
+    if (active && typeof active.blur === "function") {
+        active.blur();
+    }
+}
+
 function startDrawing(event) {
     event.preventDefault();
+    closeKeyboard();
 
     drawing = true;
     hasSignature = true;
@@ -515,6 +504,10 @@ function stopDrawing(event) {
 /* =========================================================
    POINTER EVENTS
    ========================================================= */
+
+canvas.addEventListener("pointerdown", function () {
+    closeKeyboard();
+}, { passive: true });
 
 canvas.addEventListener("pointerdown", startDrawing, { passive: false });
 canvas.addEventListener("pointermove", draw, { passive: false });
@@ -655,88 +648,6 @@ function showStatus(text) {
     status.style.display = "block";
 }
 
-
-/* =========================================================
-   MEHRERE PAKETE
-   ========================================================= */
-
-let packageCount = 0;
-
-function addPackageField(focusField = true) {
-    packageCount++;
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "package-field";
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "package-input";
-    input.autocomplete = "off";
-    input.placeholder = "Barcode Paket " + packageCount + " scannen";
-
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "package-remove";
-    remove.textContent = "✕";
-    remove.title = "Paket entfernen";
-
-    remove.addEventListener("click", function () {
-        wrapper.remove();
-        renumberPackageFields();
-    });
-
-    input.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-
-            if (input.value.trim()) {
-                addPackageField(true);
-            }
-        }
-    });
-
-    wrapper.appendChild(input);
-    wrapper.appendChild(remove);
-
-    document.getElementById("packageFields").appendChild(wrapper);
-
-    if (focusField) {
-        setTimeout(function () {
-            input.focus();
-        }, 50);
-    }
-
-    renumberPackageFields();
-    return input;
-}
-
-function renumberPackageFields() {
-    const fields = document.querySelectorAll(".package-input");
-
-    fields.forEach(function (field, index) {
-        field.placeholder = "Barcode Paket " + (index + 1) + " scannen";
-    });
-}
-
-function getPackages() {
-    return Array.from(
-        document.querySelectorAll(".package-input")
-    )
-    .map(function (input) {
-        return input.value.trim();
-    })
-    .filter(Boolean);
-}
-
-document.getElementById("addPackageButton").addEventListener(
-    "click",
-    function () {
-        addPackageField(true);
-    }
-);
-
-addPackageField(false);
-
 /* =========================================================
    VALIDIERUNG
    ========================================================= */
@@ -759,13 +670,6 @@ function validateForm() {
     if (packages.length === 0) {
         alert("Bitte mindestens ein Paket scannen.");
         getPackageInputs()[0].focus();
-        return false;
-    }
-
-    if (getPackages().length === 0) {
-        alert("Bitte mindestens ein Paket scannen.");
-        const firstPackage = document.querySelector(".package-input");
-        if (firstPackage) firstPackage.focus();
         return false;
     }
 
