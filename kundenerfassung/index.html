@@ -337,7 +337,7 @@ button {
         <h2>3. Unterschrift</h2>
 
         <div class="signature-wrap">
-            <canvas id="signatureCanvas"></canvas>
+            <canvas id="signatureCanvas" tabindex="-1"></canvas>
         </div>
 
         <p class="signature-hint">
@@ -390,30 +390,96 @@ let drawing = false;
 let hasSignature = false;
 let lastX = 0;
 let lastY = 0;
+let signatureBaseWidth = 0;
 
 /* =========================================================
    CANVAS – EXAKTE DARSTELLUNG
    ========================================================= */
 
-function setupCanvas() {
+function setupCanvas(preserveSignature = false) {
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
 
-    /* Interne Auflösung passend zur sichtbaren Größe */
+    /*
+       Bei einer Drehung darf die bereits vorhandene Unterschrift
+       NICHT mit der neuen Breite des Canvas mitgestreckt werden.
+
+       Deshalb sichern wir die aktuelle Zeichnung und übernehmen
+       sie nach dem Neusetzen des Canvas in derselben logischen
+       Größe. Die Höhe des Unterschriftenfeldes bleibt konstant.
+    */
+    let oldImage = null;
+    let oldCssWidth = 0;
+    let oldCssHeight = 0;
+
+    if (preserveSignature && hasSignature) {
+        oldCssWidth = canvas.clientWidth;
+        oldCssHeight = canvas.clientHeight;
+
+        try {
+            oldImage = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+        } catch (_) {
+            oldImage = null;
+        }
+    }
+
     canvas.width = Math.max(1, Math.round(rect.width * dpr));
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
 
-    /*
-       Wir zeichnen danach in CSS-Pixeln.
-       Dadurch entsprechen die Koordinaten direkt
-       der Position des Fingers/Stiftes auf dem Bildschirm.
-    */
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.strokeStyle = "#000000";
+    ctx.fillStyle = "#000000";
+
+    /*
+       Die vorhandene Unterschrift wird bei Rotation nicht
+       auf die neue Breite des Feldes gestreckt.
+       Sie bleibt links in ihrer bisherigen logischen Größe.
+    */
+    if (oldImage) {
+        const temp = document.createElement("canvas");
+        temp.width = oldImage.width;
+        temp.height = oldImage.height;
+
+        const tempCtx = temp.getContext("2d");
+        tempCtx.putImageData(oldImage, 0, 0);
+
+        const logicalWidth = signatureBaseWidth || oldCssWidth || rect.width;
+        const logicalHeight = rect.height;
+
+        /*
+           1:1 in CSS-Pixeln, ohne horizontale Streckung.
+        */
+        const drawWidth = Math.min(
+            logicalWidth,
+            rect.width
+        );
+
+        const drawHeight = Math.min(
+            logicalHeight,
+            rect.height
+        );
+
+        ctx.drawImage(
+            temp,
+            0,
+            0,
+            temp.width,
+            temp.height,
+            0,
+            0,
+            drawWidth,
+            drawHeight
+        );
+    }
 }
 
 /* =========================================================
@@ -435,9 +501,44 @@ function getPosition(event) {
 
 function closeKeyboard() {
     const active = document.activeElement;
+
     if (active && typeof active.blur === "function") {
+        try {
+            if (active.tagName === "INPUT" || active.tagName === "TEXTAREA") {
+                active.setAttribute("readonly", "readonly");
+            }
+        } catch (_) {}
+
         active.blur();
+
+        setTimeout(function () {
+            try {
+                active.removeAttribute("readonly");
+            } catch (_) {}
+        }, 150);
     }
+
+    /*
+       Der T51/Android 7 kann die Tastatur nach blur() manchmal
+       einen Moment länger offen lassen. Deshalb noch einmal
+       nach kurzer Verzögerung den Fokus entfernen.
+    */
+    setTimeout(function () {
+        const current = document.activeElement;
+
+        if (
+            current &&
+            current !== document.body &&
+            typeof current.blur === "function"
+        ) {
+            current.blur();
+        }
+
+        try {
+            canvas.focus({ preventScroll: true });
+            canvas.blur();
+        } catch (_) {}
+    }, 80);
 }
 
 function startDrawing(event) {
@@ -446,6 +547,10 @@ function startDrawing(event) {
 
     drawing = true;
     hasSignature = true;
+
+    if (!signatureBaseWidth) {
+        signatureBaseWidth = canvas.clientWidth;
+    }
 
     const pos = getPosition(event);
 
@@ -599,8 +704,10 @@ function addPackageField(focusIt) {
     packageList.appendChild(row);
 
     input.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
+        if (event.key === "Enter" || event.keyCode === 13) {
             event.preventDefault();
+            event.stopPropagation();
+
             if (input.value.trim()) {
                 addPackageField(true);
             }
@@ -616,19 +723,18 @@ function addPackageField(focusIt) {
     return input;
 }
 
-addPackageButton.addEventListener("click", function() {
+addPackageButton.addEventListener("click", function(event) {
+    event.preventDefault();
+
+    const active = document.activeElement;
+    if (active && active.classList && active.classList.contains("package-barcode")) {
+        active.blur();
+    }
+
     addPackageField(true);
 });
 
-/* Scanner für das erste Feld: Enter erzeugt automatisch das nächste Feld. */
-getPackageInputs()[0].addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        if (this.value.trim()) {
-            addPackageField(true);
-        }
-    }
-});
+/* Jedes Paketfeld erhält seine Scanner-Enter-Logik direkt beim Erstellen. */
 
 /* =========================================================
    HILFSFUNKTIONEN
@@ -667,9 +773,12 @@ function validateForm() {
         return false;
     }
 
+    const packages = getPackages();
+
     if (packages.length === 0) {
         alert("Bitte mindestens ein Paket scannen.");
-        getPackageInputs()[0].focus();
+        const firstPackage = getPackageInputs()[0];
+        if (firstPackage) firstPackage.focus();
         return false;
     }
 
@@ -967,6 +1076,7 @@ document.getElementById("newButton").addEventListener("click", function () {
     ctx.clearRect(0, 0, rect.width, rect.height);
 
     hasSignature = false;
+    signatureBaseWidth = 0;
 
     document.getElementById("summaryCard").style.display = "none";
     document.getElementById("status").style.display = "none";
@@ -985,14 +1095,25 @@ window.addEventListener("load", function () {
     setupCanvas();
 });
 
+let resizeTimer = null;
+
+window.addEventListener("orientationchange", function () {
+    setTimeout(function () {
+        setupCanvas(hasSignature);
+    }, 250);
+});
+
 window.addEventListener("resize", function () {
-    /*
-       Canvas nur neu dimensionieren, solange noch
-       keine Unterschrift vorhanden ist.
-    */
-    if (!hasSignature) {
-        setupCanvas();
-    }
+    clearTimeout(resizeTimer);
+
+    resizeTimer = setTimeout(function () {
+        /*
+           Auch nach einer Drehung wird das Canvas neu an
+           die Bildschirmgröße angepasst, aber die vorhandene
+           Unterschrift wird nicht horizontal vergrößert.
+        */
+        setupCanvas(hasSignature);
+    }, 150);
 });
 </script>
 
