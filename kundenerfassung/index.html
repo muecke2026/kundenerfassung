@@ -17,40 +17,49 @@
     box-sizing: border-box;
 }
 
+html,
 body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
     font-family: Arial, sans-serif;
     background: #f2f4f7;
     color: #222;
+}
+
+body {
+    padding-bottom: 30px;
 }
 
 header {
     background: #111827;
     color: white;
     text-align: center;
-    padding: 22px 14px;
+    padding: 20px 14px;
 }
 
 header h1 {
     margin: 0;
-    font-size: 28px;
+    font-size: 27px;
 }
 
 header p {
     margin: 7px 0 0;
-    font-size: 17px;
+    font-size: 16px;
 }
 
 .container {
-    max-width: 800px;
+    width: 100%;
+    max-width: 850px;
     margin: auto;
     padding: 14px;
 }
 
 .card {
     background: white;
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 15px;
+    padding: 18px;
     margin-bottom: 15px;
     box-shadow: 0 3px 12px rgba(0,0,0,.08);
 }
@@ -64,9 +73,9 @@ header p {
 
 label {
     display: block;
-    font-size: 21px;
+    font-size: 20px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 9px;
 }
 
 .choice {
@@ -75,9 +84,9 @@ label {
     gap: 12px;
     border: 2px solid #d1d5db;
     border-radius: 12px;
-    padding: 16px;
+    padding: 15px;
     margin: 10px 0;
-    font-size: 20px;
+    font-size: 19px;
 }
 
 .choice input {
@@ -88,10 +97,10 @@ label {
 
 input[type="text"] {
     width: 100%;
-    padding: 17px;
+    padding: 16px;
     border: 2px solid #cbd5e1;
     border-radius: 12px;
-    font-size: 21px;
+    font-size: 20px;
     background: white;
 }
 
@@ -105,170 +114,107 @@ input[type="text"]:focus {
 }
 
 .help {
-    margin-top: 10px;
+    margin-top: 9px;
     color: #666;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.4;
 }
 
-
-/* =========================================
-   UNTERSCHRIFT
-   ========================================= */
-
 #signatureCanvas {
-
     display: block;
-
     width: 100%;
-
     height: 280px;
 
     background: white;
-
-    border: 3px solid #9ca3af;
-
+    border: 3px solid #64748b;
     border-radius: 12px;
 
     touch-action: none;
-
     user-select: none;
-
     -webkit-user-select: none;
-
     -webkit-touch-callout: none;
-
-    outline: none;
 }
 
-
-/* =========================================
-   BUTTONS
-   ========================================= */
-
 button {
-
     width: 100%;
-
     border: none;
-
     border-radius: 12px;
-
-    padding: 17px;
-
-    margin-top: 11px;
-
-    font-size: 20px;
-
+    padding: 16px;
+    margin-top: 10px;
+    font-size: 19px;
     font-weight: bold;
-
 }
 
 .save {
-
     background: #16a34a;
-
     color: white;
-
 }
 
 .pdf {
-
     background: #2563eb;
-
     color: white;
-
 }
 
 .clear {
-
     background: #6b7280;
-
     color: white;
-
 }
 
 .delete {
-
     background: #dc2626;
-
     color: white;
-
 }
 
-
-/* =========================================
-   ERFOLG
-   ========================================= */
-
 .success {
-
     display: none;
-
     background: #dcfce7;
-
     color: #166534;
-
-    padding: 15px;
-
+    padding: 14px;
     border-radius: 12px;
-
     font-weight: bold;
-
     font-size: 18px;
-
     margin-bottom: 15px;
 }
 
-
-/* =========================================
-   GESPEICHERTE VORGÄNGE
-   ========================================= */
-
 .record {
-
     border-top: 1px solid #ddd;
-
-    padding: 17px 0;
-
+    padding: 16px 0;
 }
 
 .record:first-child {
-
     border-top: none;
-
 }
 
 .record div {
-
     font-size: 17px;
-
     margin: 6px 0;
-
 }
 
 .signature-image {
-
     width: 300px;
-
     max-width: 100%;
-
     border: 1px solid #ddd;
-
     border-radius: 8px;
-
 }
 
 .empty {
-
     color: #777;
-
     font-size: 16px;
+}
+
+@media (orientation: landscape) {
+
+    #signatureCanvas {
+        height: 260px;
+    }
+
+    .container {
+        max-width: 1000px;
+    }
 
 }
 
 </style>
-
 </head>
 
 
@@ -277,11 +223,11 @@ button {
 
 <header>
 
-    <h1>📱 Kundenerfassung</h1>
+<h1>📱 Kundenerfassung</h1>
 
-    <p>
-        Empfang · Barcode · Unterschrift
-    </p>
+<p>
+Empfang · Barcode · Unterschrift
+</p>
 
 </header>
 
@@ -289,240 +235,213 @@ button {
 <div class="container">
 
 
-    <!-- =====================================
-         ERFOLG
-         ===================================== -->
+<div
+id="success"
+class="success">
 
-    <div
-        id="success"
-        class="success">
+✓ Vorgang wurde gespeichert.
 
-        ✓ Vorgang wurde gespeichert.
+</div>
 
-    </div>
 
+<!-- =====================================
+     EMPFÄNGER
+     ===================================== -->
 
-    <!-- =====================================
-         SCHRITT 1
-         ===================================== -->
+<div class="card">
 
-    <div class="card">
+<div class="step">
+SCHRITT 1
+</div>
 
-        <div class="step">
 
-            SCHRITT 1
+<label>
+Wer hat die Sendung erhalten?
+</label>
 
-        </div>
 
+<label class="choice">
 
-        <label>
+<input
+type="radio"
+name="receiverType"
+value="Empfänger"
+checked>
 
-            Wer hat die Sendung erhalten?
+<span>
+Der Empfänger
+</span>
 
-        </label>
+</label>
 
 
-        <label class="choice">
+<label class="choice">
 
-            <input
-                type="radio"
-                name="receiverType"
-                value="Empfänger"
-                checked>
+<input
+type="radio"
+name="receiverType"
+value="Andere anwesende Person">
 
-            <span>
+<span>
+Eine andere anwesende Person
+</span>
 
-                Der Empfänger
+</label>
 
-            </span>
 
-        </label>
+<div
+id="otherPersonBox"
+class="hidden">
 
+<label
+for="otherPersonName">
 
-        <label class="choice">
+Name der anwesenden Person
 
-            <input
-                type="radio"
-                name="receiverType"
-                value="Andere anwesende Person">
+</label>
 
-            <span>
+<input
+id="otherPersonName"
+type="text"
+placeholder="Name eingeben"
+autocomplete="off">
 
-                Eine andere anwesende Person
+</div>
 
-            </span>
+</div>
 
-        </label>
 
+<!-- =====================================
+     BARCODE
+     ===================================== -->
 
-        <div
-            id="otherPersonBox"
-            class="hidden">
+<div class="card">
 
+<div class="step">
+SCHRITT 2
+</div>
 
-            <label
-                for="otherPersonName">
 
-                Name der anwesenden Person
+<label
+for="barcode">
 
-            </label>
+Barcode
 
+</label>
 
-            <input
-                id="otherPersonName"
-                type="text"
-                placeholder="Name eingeben"
-                autocomplete="off">
 
+<input
+id="barcode"
+type="text"
+placeholder="Barcode scannen..."
+autocomplete="off">
 
-        </div>
 
-    </div>
+<div class="help">
 
+Scan-Taste am Zebra T51 drücken.
+Nach dem Scan wird die Tastatur geschlossen.
 
-    <!-- =====================================
-         SCHRITT 2
-         ===================================== -->
+</div>
 
-    <div class="card">
+</div>
 
-        <div class="step">
 
-            SCHRITT 2
+<!-- =====================================
+     UNTERSCHRIFT
+     ===================================== -->
 
-        </div>
+<div class="card">
 
+<div class="step">
+SCHRITT 3
+</div>
 
-        <label
-            for="barcode">
 
-            Barcode
+<label>
+Unterschrift
+</label>
 
-        </label>
 
+<canvas
+id="signatureCanvas">
+</canvas>
 
-        <input
-            id="barcode"
-            type="text"
-            placeholder="Barcode scannen..."
-            autocomplete="off">
 
+<button
+class="clear"
+type="button"
+onclick="clearSignature()">
 
-        <div class="help">
+Unterschrift löschen
 
-            Scan-Taste am Zebra T51 drücken.
+</button>
 
-            Nach dem Scan wird die Tastatur
-            automatisch geschlossen.
+</div>
 
-        </div>
 
-    </div>
+<!-- =====================================
+     SPEICHERN / PDF
+     ===================================== -->
 
+<div class="card">
 
-    <!-- =====================================
-         SCHRITT 3
-         ===================================== -->
+<button
+class="save"
+type="button"
+onclick="saveRecord()">
 
-    <div class="card">
+✓ Vorgang speichern
 
-        <div class="step">
+</button>
 
-            SCHRITT 3
 
-        </div>
+<button
+class="pdf"
+type="button"
+onclick="createPDF()">
 
+📄 PDF erstellen
 
-        <label>
+</button>
 
-            Unterschrift
+</div>
 
-        </label>
 
+<!-- =====================================
+     GESPEICHERTE VORGÄNGE
+     ===================================== -->
 
-        <canvas
-            id="signatureCanvas">
-        </canvas>
+<div class="card">
 
+<div class="step">
 
-        <button
-            class="clear"
-            type="button"
-            onclick="clearSignature()">
+📋 Gespeicherte Vorgänge
 
-            Unterschrift löschen
+</div>
 
-        </button>
 
-    </div>
+<div id="records">
 
+<div class="empty">
 
-    <!-- =====================================
-         SPEICHERN / PDF
-         ===================================== -->
+Noch keine Vorgänge gespeichert.
 
-    <div class="card">
+</div>
 
+</div>
 
-        <button
-            class="save"
-            type="button"
-            onclick="saveRecord()">
 
-            ✓ Vorgang speichern
+<button
+class="delete"
+type="button"
+onclick="deleteAllRecords()">
 
-        </button>
+Alle Vorgänge löschen
 
+</button>
 
-        <button
-            class="pdf"
-            type="button"
-            onclick="createPDF()">
-
-            📄 PDF erstellen
-
-        </button>
-
-
-    </div>
-
-
-    <!-- =====================================
-         GESPEICHERTE VORGÄNGE
-         ===================================== -->
-
-    <div class="card">
-
-
-        <div class="step">
-
-            📋 Gespeicherte Vorgänge
-
-        </div>
-
-
-        <div id="records">
-
-            <div class="empty">
-
-                Noch keine Vorgänge gespeichert.
-
-            </div>
-
-        </div>
-
-
-        <button
-            class="delete"
-            type="button"
-            onclick="deleteAllRecords()">
-
-            Alle Vorgänge löschen
-
-        </button>
-
-
-    </div>
+</div>
 
 
 </div>
@@ -530,103 +449,98 @@ button {
 
 <script>
 
-
-/* =========================================
-   ELEMENTE
-   ========================================= */
-
-const otherPersonBox =
-    document.getElementById(
-        "otherPersonBox"
-    );
-
-
-const otherPersonName =
-    document.getElementById(
-        "otherPersonName"
-    );
-
-
-const barcode =
-    document.getElementById(
-        "barcode"
-    );
-
+/* =====================================================
+   GRUNDLAGEN
+   ===================================================== */
 
 const canvas =
-    document.getElementById(
-        "signatureCanvas"
-    );
-
+document.getElementById(
+    "signatureCanvas"
+);
 
 const ctx =
-    canvas.getContext(
-        "2d"
-    );
-
+canvas.getContext(
+    "2d"
+);
 
 let drawing = false;
 
 let hasSignature = false;
 
 
-/* =========================================
-   EMPFÄNGER AUSWÄHLEN
-   ========================================= */
+/*
+   Diese Variable enthält die aktuelle
+   Unterschrift als Bild.
+
+   Dadurch können wir sie beim Drehen
+   des T51 auf die neue Canvas-Größe
+   übertragen.
+*/
+
+let savedSignature = null;
+
+
+/* =====================================================
+   EMPFÄNGER
+   ===================================================== */
+
+const otherPersonBox =
+document.getElementById(
+    "otherPersonBox"
+);
+
+const otherPersonName =
+document.getElementById(
+    "otherPersonName"
+);
+
 
 document
-    .querySelectorAll(
-        'input[name="receiverType"]'
-    )
-    .forEach(
+.querySelectorAll(
+    'input[name="receiverType"]'
+)
+.forEach(function(radio) {
 
-        function(radio) {
+    radio.addEventListener(
+        "change",
+        function() {
 
-            radio.addEventListener(
-                "change",
-                function() {
+            if (
+                this.value ===
+                "Andere anwesende Person"
+                &&
+                this.checked
+            ) {
 
-                    if (
-                        this.value ===
-                        "Andere anwesende Person"
-                        &&
-                        this.checked
-                    ) {
+                otherPersonBox
+                    .classList
+                    .remove("hidden");
 
-                        otherPersonBox
-                            .classList
-                            .remove("hidden");
+            }
 
-                    }
+            else {
 
-                    else {
+                otherPersonBox
+                    .classList
+                    .add("hidden");
 
-                        otherPersonBox
-                            .classList
-                            .add("hidden");
+                otherPersonName.value = "";
 
-                        otherPersonName.value =
-                            "";
-
-                    }
-
-                }
-            );
+            }
 
         }
-
     );
 
+});
 
-/* =========================================
-   TASTATUR SCHLIESSEN
-   ========================================= */
+
+/* =====================================================
+   TASTATUR
+   ===================================================== */
 
 function closeKeyboard() {
 
-    if (
-        document.activeElement
-    ) {
+    if (document.activeElement) {
 
         document
             .activeElement
@@ -641,14 +555,18 @@ function closeKeyboard() {
 }
 
 
-/* =========================================
+/* =====================================================
    BARCODE
-   ========================================= */
+   ===================================================== */
+
+const barcode =
+document.getElementById(
+    "barcode"
+);
+
 
 barcode.addEventListener(
-
     "keydown",
-
     function(event) {
 
         if (
@@ -664,48 +582,84 @@ barcode.addEventListener(
         }
 
     }
-
 );
 
 
-/* =========================================
-   CANVAS
-   ========================================= */
+/* =====================================================
+   CANVAS-GRÖSSE
+   ===================================================== */
 
 /*
-   WICHTIG:
+   Wichtig:
 
-   Keine devicePixelRatio-Skalierung.
+   Die interne Canvas-Größe wird immer exakt
+   aus der aktuell sichtbaren CSS-Größe berechnet.
 
-   Dadurch entspricht die sichtbare
-   Canvas-Größe direkt der Zeichenfläche.
+   Es gibt KEINE devicePixelRatio-Vergrößerung.
+
+   Dadurch entsprechen Touch-Koordinaten
+   direkt den sichtbaren Koordinaten.
 */
 
-function setupCanvas() {
+function getCanvasSize() {
 
     const rect =
         canvas.getBoundingClientRect();
 
+    return {
+
+        width:
+            Math.max(
+                1,
+                Math.round(rect.width)
+            ),
+
+        height:
+            Math.max(
+                1,
+                Math.round(rect.height)
+            )
+
+    };
+
+}
+
+
+/* =====================================================
+   CANVAS EINRICHTEN
+   ===================================================== */
+
+function setupCanvas() {
+
+    const size =
+        getCanvasSize();
+
 
     canvas.width =
-        rect.width;
-
+        size.width;
 
     canvas.height =
-        rect.height;
+        size.height;
+
+
+    ctx.setTransform(
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    );
 
 
     ctx.lineWidth =
         3;
 
-
     ctx.lineCap =
         "round";
 
-
     ctx.lineJoin =
         "round";
-
 
     ctx.strokeStyle =
         "#000";
@@ -713,12 +667,151 @@ function setupCanvas() {
 }
 
 
-setupCanvas();
+/* =====================================================
+   UNTERSCHRIFT VOR DEM RESIZE SICHERN
+   ===================================================== */
+
+function saveCurrentSignature() {
+
+    if (!hasSignature) {
+
+        return null;
+
+    }
 
 
-/* =========================================
-   POSITION
-   ========================================= */
+    return {
+
+        image:
+            canvas.toDataURL(
+                "image/png"
+            ),
+
+        width:
+            canvas.width,
+
+        height:
+            canvas.height
+
+    };
+
+}
+
+
+/* =====================================================
+   UNTERSCHRIFT NACH RESIZE WIEDERHERSTELLEN
+   ===================================================== */
+
+function restoreSignature(data) {
+
+    if (!data) {
+
+        return;
+
+    }
+
+
+    const image =
+        new Image();
+
+
+    image.onload =
+    function() {
+
+        const scaleX =
+            canvas.width /
+            data.width;
+
+
+        const scaleY =
+            canvas.height /
+            data.height;
+
+
+        /*
+           Die gespeicherte Unterschrift wird
+           proportional auf die neue Canvas-Größe
+           übertragen.
+        */
+
+        ctx.save();
+
+        ctx.setTransform(
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+        );
+
+
+        ctx.drawImage(
+
+            image,
+
+            0,
+            0,
+
+            data.width,
+            data.height,
+
+            0,
+            0,
+
+            canvas.width,
+            canvas.height
+
+        );
+
+
+        ctx.restore();
+
+
+        ctx.lineWidth =
+            3;
+
+        ctx.lineCap =
+            "round";
+
+        ctx.lineJoin =
+            "round";
+
+        ctx.strokeStyle =
+            "#000";
+
+    };
+
+
+    image.src =
+        data.image;
+
+}
+
+
+/* =====================================================
+   CANVAS INITIAL
+   ===================================================== */
+
+function initializeCanvas() {
+
+    setupCanvas();
+
+}
+
+
+/*
+   Erst nach dem Layout initialisieren.
+*/
+
+window.requestAnimationFrame(
+    initializeCanvas
+);
+
+
+/* =====================================================
+   TOUCH-POSITION
+   ===================================================== */
 
 function getPosition(event) {
 
@@ -726,46 +819,14 @@ function getPosition(event) {
         canvas.getBoundingClientRect();
 
 
-    let clientX;
-
-    let clientY;
-
-
-    if (
-        event.touches
-        &&
-        event.touches.length > 0
-    ) {
-
-        clientX =
-            event.touches[0].clientX;
-
-
-        clientY =
-            event.touches[0].clientY;
-
-    }
-
-    else {
-
-        clientX =
-            event.clientX;
-
-
-        clientY =
-            event.clientY;
-
-    }
-
-
     return {
 
         x:
-            clientX -
+            event.clientX -
             rect.left,
 
         y:
-            clientY -
+            event.clientY -
             rect.top
 
     };
@@ -773,9 +834,9 @@ function getPosition(event) {
 }
 
 
-/* =========================================
+/* =====================================================
    UNTERSCHRIFT START
-   ========================================= */
+   ===================================================== */
 
 function startDrawing(event) {
 
@@ -785,7 +846,6 @@ function startDrawing(event) {
 
     drawing =
         true;
-
 
     hasSignature =
         true;
@@ -808,12 +868,33 @@ function startDrawing(event) {
 
     );
 
+
+    /*
+       Pointer festhalten.
+    */
+
+    if (
+        event.pointerId !== undefined
+    ) {
+
+        try {
+
+            canvas.setPointerCapture(
+                event.pointerId
+            );
+
+        }
+
+        catch (_) {}
+
+    }
+
 }
 
 
-/* =========================================
+/* =====================================================
    UNTERSCHRIFT ZEICHNEN
-   ========================================= */
+   ===================================================== */
 
 function draw(event) {
 
@@ -847,9 +928,9 @@ function draw(event) {
 }
 
 
-/* =========================================
+/* =====================================================
    UNTERSCHRIFT ENDE
-   ========================================= */
+   ===================================================== */
 
 function stopDrawing(event) {
 
@@ -866,119 +947,91 @@ function stopDrawing(event) {
 
     ctx.closePath();
 
+
+    if (
+        event
+        &&
+        event.pointerId !== undefined
+    ) {
+
+        try {
+
+            canvas.releasePointerCapture(
+                event.pointerId
+            );
+
+        }
+
+        catch (_) {}
+
+    }
+
+
+    /*
+       Aktuelle Unterschrift sichern.
+    */
+
+    if (hasSignature) {
+
+        savedSignature =
+            saveCurrentSignature();
+
+    }
+
 }
 
 
-/* =========================================
-   TOUCH
-   ========================================= */
+/* =====================================================
+   POINTER EVENTS
+   ===================================================== */
 
 canvas.addEventListener(
-
-    "touchstart",
-
+    "pointerdown",
     startDrawing,
-
     {
         passive: false
     }
-
 );
 
 
 canvas.addEventListener(
-
-    "touchmove",
-
+    "pointermove",
     draw,
-
     {
         passive: false
     }
-
 );
 
 
 canvas.addEventListener(
-
-    "touchend",
-
+    "pointerup",
     stopDrawing,
-
     {
         passive: false
     }
-
 );
 
 
 canvas.addEventListener(
-
-    "touchcancel",
-
+    "pointercancel",
     stopDrawing,
-
     {
         passive: false
     }
-
 );
 
 
-/* =========================================
-   MAUS
-   ========================================= */
-
-canvas.addEventListener(
-
-    "mousedown",
-
-    startDrawing
-
-);
-
-
-canvas.addEventListener(
-
-    "mousemove",
-
-    draw
-
-);
-
-
-canvas.addEventListener(
-
-    "mouseup",
-
-    stopDrawing
-
-);
-
-
-canvas.addEventListener(
-
-    "mouseleave",
-
-    stopDrawing
-
-);
-
-
-/* =========================================
+/* =====================================================
    UNTERSCHRIFT LÖSCHEN
-   ========================================= */
+   ===================================================== */
 
 function clearSignature() {
 
     ctx.clearRect(
 
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
 
     );
@@ -987,12 +1040,116 @@ function clearSignature() {
     hasSignature =
         false;
 
+
+    savedSignature =
+        null;
+
 }
 
 
-/* =========================================
+/* =====================================================
+   ORIENTIERUNG / QUERFORMAT
+   ===================================================== */
+
+/*
+   Beim Drehen des T51 verändert sich die
+   sichtbare Canvas-Größe.
+
+   Wir speichern die bisherige Unterschrift,
+   dimensionieren das Canvas neu und stellen
+   die Unterschrift wieder her.
+*/
+
+let resizeTimer = null;
+
+
+function handleOrientationChange() {
+
+    clearTimeout(
+        resizeTimer
+    );
+
+
+    resizeTimer =
+        setTimeout(
+
+            function() {
+
+
+                const oldSignature =
+
+                    hasSignature
+
+                    ?
+
+                    saveCurrentSignature()
+
+                    :
+
+                    null;
+
+
+                /*
+                   Canvas neu an die aktuelle
+                   Ausrichtung anpassen.
+                */
+
+                setupCanvas();
+
+
+                /*
+                   Vorhandene Unterschrift
+                   wiederherstellen.
+                */
+
+                if (oldSignature) {
+
+                    restoreSignature(
+                        oldSignature
+                    );
+
+                    savedSignature =
+                        oldSignature;
+
+                    hasSignature =
+                        true;
+
+                }
+
+
+            },
+
+            250
+
+        );
+
+}
+
+
+/*
+   Android / Zebra:
+   resize wird beim Drehen ausgelöst.
+*/
+
+window.addEventListener(
+    "resize",
+    handleOrientationChange
+);
+
+
+/*
+   Zusätzlich orientationchange.
+*/
+
+window.addEventListener(
+    "orientationchange",
+    handleOrientationChange
+);
+
+
+/* =====================================================
    EMPFÄNGERDATEN
-   ========================================= */
+   ===================================================== */
 
 function getReceiverData() {
 
@@ -1039,12 +1196,32 @@ function getReceiverData() {
 }
 
 
-/* =========================================
+/* =====================================================
+   HTML SICHER DARSTELLEN
+   ===================================================== */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
+
+}
+
+
+/* =====================================================
    SPEICHERN
-   ========================================= */
+   ===================================================== */
 
 function saveRecord() {
-
 
     const receiver =
         getReceiverData();
@@ -1066,14 +1243,10 @@ function saveRecord() {
     ) {
 
         alert(
-
             "Bitte den Namen der anwesenden Person eingeben."
-
         );
 
-
         otherPersonName.focus();
-
 
         return;
 
@@ -1083,14 +1256,10 @@ function saveRecord() {
     if (!code) {
 
         alert(
-
             "Bitte zuerst den Barcode scannen."
-
         );
 
-
         barcode.focus();
-
 
         return;
 
@@ -1100,11 +1269,8 @@ function saveRecord() {
     if (!hasSignature) {
 
         alert(
-
             "Bitte den Empfang unterschreiben lassen."
-
         );
-
 
         return;
 
@@ -1224,33 +1390,11 @@ function saveRecord() {
 }
 
 
-/* =========================================
-   HTML SICHER DARSTELLEN
-   ========================================= */
-
-function escapeHtml(text) {
-
-    const div =
-        document.createElement(
-            "div"
-        );
-
-
-    div.textContent =
-        text;
-
-
-    return div.innerHTML;
-
-}
-
-
-/* =========================================
+/* =====================================================
    VORGÄNGE LADEN
-   ========================================= */
+   ===================================================== */
 
 function loadRecords() {
-
 
     const records =
 
@@ -1268,7 +1412,6 @@ function loadRecords() {
 
 
     const container =
-
         document.getElementById(
             "records"
         );
@@ -1286,7 +1429,6 @@ function loadRecords() {
 
             '</div>';
 
-
         return;
 
     }
@@ -1297,7 +1439,6 @@ function loadRecords() {
 
 
     records.forEach(
-
         function(record) {
 
 
@@ -1403,18 +1544,16 @@ function loadRecords() {
             );
 
         }
-
     );
 
 }
 
 
-/* =========================================
-   PDF ERSTELLEN
-   ========================================= */
+/* =====================================================
+   PDF
+   ===================================================== */
 
 function createPDF() {
-
 
     const receiver =
         getReceiverData();
@@ -1436,11 +1575,8 @@ function createPDF() {
     ) {
 
         alert(
-
             "Bitte den Namen der anwesenden Person eingeben."
-
         );
-
 
         return;
 
@@ -1450,11 +1586,8 @@ function createPDF() {
     if (!code) {
 
         alert(
-
             "Bitte zuerst den Barcode scannen."
-
         );
-
 
         return;
 
@@ -1464,11 +1597,8 @@ function createPDF() {
     if (!hasSignature) {
 
         alert(
-
             "Bitte zuerst unterschreiben."
-
         );
-
 
         return;
 
@@ -1482,7 +1612,6 @@ function createPDF() {
 
 
     const date =
-
         new Date()
             .toLocaleString(
                 "de-DE"
@@ -1490,7 +1619,6 @@ function createPDF() {
 
 
     const pdfWindow =
-
         window.open(
             "",
             "_blank"
@@ -1500,11 +1628,8 @@ function createPDF() {
     if (!pdfWindow) {
 
         alert(
-
-            "Das PDF-Fenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben."
-
+            "Das PDF-Fenster wurde blockiert. Bitte Pop-ups erlauben."
         );
-
 
         return;
 
@@ -1515,9 +1640,7 @@ function createPDF() {
         "";
 
 
-    if (
-        receiver.name
-    ) {
+    if (receiver.name) {
 
         personLine =
 
@@ -1550,106 +1673,100 @@ function createPDF() {
 
 <title>Kundenerfassung</title>
 
-
 <style>
 
 body {
 
-    font-family:
-        Arial,
-        sans-serif;
+font-family:
+Arial,
+sans-serif;
 
-    margin:
-        40px;
+margin:
+40px;
 
-    color:
-        #222;
+color:
+#222;
 
 }
-
 
 h1 {
 
-    font-size:
-        28px;
+font-size:
+28px;
 
 }
-
 
 table {
 
-    width:
-        100%;
+width:
+100%;
 
-    border-collapse:
-        collapse;
+border-collapse:
+collapse;
 
 }
-
 
 td {
 
-    padding:
-        12px;
+padding:
+12px;
 
-    border-bottom:
-        1px solid #ddd;
+border-bottom:
+1px solid #ddd;
 
 }
-
 
 td:first-child {
 
-    font-weight:
-        bold;
+font-weight:
+bold;
 
-    width:
-        220px;
+width:
+220px;
 
 }
-
 
 h2 {
 
-    margin-top:
-        35px;
+margin-top:
+35px;
 
 }
-
 
 .signature {
 
-    width:
-        450px;
+width:
+450px;
 
-    max-width:
-        100%;
+max-width:
+100%;
 
-    border:
-        1px solid #999;
+border:
+1px solid #999;
 
 }
-
 
 .info {
 
-    margin-top:
-        30px;
+margin-top:
+30px;
 
-    color:
-        #666;
+color:
+#666;
+
+font-size:
+14px;
 
 }
 
-
 @media print {
 
-    .info {
+.info {
 
-        display:
-            none;
+display:
+none;
 
-    }
+}
 
 }
 
@@ -1657,131 +1774,80 @@ h2 {
 
 </head>
 
-
 <body>
 
-
-<h1>
-
-Kundenerfassung
-
-</h1>
-
+<h1>Kundenerfassung</h1>
 
 <table>
 
-
 <tr>
 
-<td>
-
-Empfangen von
-
-</td>
+<td>Empfangen von</td>
 
 <td>
-
-${escapeHtml(
-    receiver.type
-)}
-
+${escapeHtml(receiver.type)}
 </td>
 
 </tr>
-
 
 ${personLine}
 
-
 <tr>
 
-<td>
-
-Barcode
-
-</td>
+<td>Barcode</td>
 
 <td>
-
-${escapeHtml(
-    code
-)}
-
+${escapeHtml(code)}
 </td>
 
 </tr>
 
-
 <tr>
 
-<td>
-
-Datum / Uhrzeit
-
-</td>
+<td>Datum / Uhrzeit</td>
 
 <td>
-
-${escapeHtml(
-    date
-)}
-
+${escapeHtml(date)}
 </td>
 
 </tr>
-
 
 </table>
 
-
-<h2>
-
-Unterschrift
-
-</h2>
-
+<h2>Unterschrift</h2>
 
 <img
-
 class="signature"
-
 src="${signature}"
-
 alt="Unterschrift">
-
 
 <div class="info">
 
 Im Druckdialog bitte
-
-„Als PDF speichern“
-
-auswählen.
+„Als PDF speichern“ auswählen.
 
 </div>
-
 
 <script>
 
 window.onload =
 function() {
 
-    setTimeout(
+setTimeout(
 
-        function() {
+function() {
 
-            window.print();
+window.print();
 
-        },
+},
 
-        400
+400
 
-    );
+);
 
 };
 
 <\/script>
-
 
 </body>
 
@@ -1795,12 +1861,11 @@ function() {
 }
 
 
-/* =========================================
+/* =====================================================
    ALLE VORGÄNGE LÖSCHEN
-   ========================================= */
+   ===================================================== */
 
 function deleteAllRecords() {
-
 
     const records =
 
@@ -1822,11 +1887,8 @@ function deleteAllRecords() {
     ) {
 
         alert(
-
             "Es sind keine Vorgänge gespeichert."
-
         );
-
 
         return;
 
@@ -1836,13 +1898,10 @@ function deleteAllRecords() {
     if (
 
         confirm(
-
             "Wirklich alle Vorgänge löschen?"
-
         )
 
     ) {
-
 
         localStorage.removeItem(
             "zebraRecords"
@@ -1856,15 +1915,13 @@ function deleteAllRecords() {
 }
 
 
-/* =========================================
+/* =====================================================
    START
-   ========================================= */
+   ===================================================== */
 
 loadRecords();
 
 </script>
 
-
 </body>
-
 </html>
